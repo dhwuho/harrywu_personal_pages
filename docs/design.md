@@ -120,13 +120,14 @@ description: "One-line summary for lists and SEO"
 date: 2026-10-06
 updated: 2026-10-08        # optional
 tags: [react, life]
-cover: ./cover.webp        # optional
+cover: ./cover.webp        # optional; link-preview image (else og-default.png)
 draft: true
 ```
 
 ### Rules
 
 - **Drafts:** `draft: true` posts are left out of production builds but shown in `astro dev`.
+- **Cover / link preview:** `cover` becomes the share image (cropped to 1200×630). A cover on either language version is used for both. No cover → `public/og-default.png`.
 - **Images:** stored next to their article, resized to max 2000 px and converted to WebP in the browser before upload. Astro makes the responsive sizes at build.
 - **Tags:** free-form, typed per post; no categories. Tag pages and a tag filter on the post list are generated. No separate tag file.
 - **Slugs:** the folder name is the URL: `/posts/<slug>` (English) and `/zh/posts/<slug>` (Chinese). Slugs are Latin letters, digits and hyphens.

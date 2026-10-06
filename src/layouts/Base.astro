@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { defaultLocale, htmlLang, localePath, locales, t, type Locale } from '../i18n';
@@ -10,13 +12,22 @@ interface Props {
   path: string;
   title?: string;
   description?: string;
+  /** Link-preview image (a post's cover). Falls back to /og-default.png. */
+  image?: ImageMetadata;
+  type?: 'website' | 'article';
 }
 
-const { lang, path, title, description = t(lang, 'site.description') } = Astro.props;
+const { lang, path, title, description = t(lang, 'site.description'), image, type = 'website' } = Astro.props;
 const siteTitle = t(lang, 'site.title');
 const fullTitle = title ? `${title} · ${siteTitle}` : siteTitle;
 const canonical = new URL(localePath(lang, path), Astro.site);
 const isDefaultHome = lang === defaultLocale && path === '/';
+
+// Share cards want 1200×630; covers are cropped to fit.
+const og = image
+  ? await getImage({ src: image, width: 1200, height: 630, fit: 'cover', format: 'jpg' })
+  : null;
+const ogImage = new URL(og ? og.src : '/og-default.png', Astro.site);
 ---
 
 <!doctype html>
@@ -36,6 +47,13 @@ const isDefaultHome = lang === defaultLocale && path === '/';
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content={htmlLang[lang].replace('-', '_')} />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={siteTitle} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title ?? siteTitle} />
+    <meta name="twitter:card" content="summary_large_image" />
     {
       isDefaultHome && (
         <script is:inline>

@@ -9,7 +9,7 @@ Design: [design.md](design.md)
 | --- | --- | --- |
 | 0 | Planning and design doc | Done |
 | 1 | Site foundation (Astro + React + MDX + i18n) | Done (visual check pending) |
-| 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | Live; OG image left (analytics waits for domain) |
+| 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | Done (analytics waits for domain) |
 | 3 | CMS login (GitHub App + auth Worker) | Not started |
 | 4 | CMS editor (CodeMirror, language tabs, preview, save) | Not started |
 | 5 | CMS media and tags | Not started |
@@ -40,7 +40,7 @@ Done when: a push to `main` updates the live `*.workers.dev` site.
 - [x] M2.2a Wrangler config for Workers static assets (`wrangler.jsonc`, dry run passes)
 - [x] M2.2b Connect Workers Builds to the repo; live at https://harrywu-personal-pages.dh-wuho.workers.dev
 - [x] M2.3a RSS per language, sitemap, `robots.txt`, `SITE_URL` build variable
-- [ ] M2.3b Open Graph image
+- [x] M2.3b Open Graph image: post cover (cropped 1200×630), else `public/og-default.png`
 - [ ] M2.4 Cloudflare Web Analytics: deferred; turn on automatic setup (no code) once the custom domain is on Cloudflare
 - [ ] M2.5 Custom domain (when bought)
 
@@ -121,3 +121,4 @@ Done when: a post with images is published without the terminal.
 - Added `robots.txt` (points to the sitemap, disallows `/admin`).
 - Internal links now end in `/` (`trailingSlash: 'always'`); before, each nav click cost a 307 redirect.
 - Decided: **no analytics script for now**. Web Analytics will use Cloudflare's automatic setup once a custom domain is on Cloudflare (automatic setup doesn't work on `workers.dev`). Worker Metrics tab covers basic request counts meanwhile.
+- Added link-preview (Open Graph) images: a post's `cover` is cropped to 1200×630; a cover on either language version is used for both; pages without one use `public/og-default.png` (made by `scripts/make-og-default.mjs`). Also `og:type`, `og:site_name`, `twitter:card`.

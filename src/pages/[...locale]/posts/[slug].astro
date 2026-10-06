@@ -1,4 +1,5 @@
 ---
+import type { ImageMetadata } from 'astro';
 import { render } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
 import { mdxComponents } from '../../../components/mdx';
@@ -11,18 +12,23 @@ export async function getStaticPaths() {
   return localeStaticPaths().flatMap(({ params, props }) =>
     groups.map((group) => ({
       params: { ...params, slug: group.slug },
-      props: { ...props, view: viewFor(group, props.lang) },
+      props: {
+        ...props,
+        view: viewFor(group, props.lang),
+        // A cover set on either language version is used for both.
+        cover: Object.values(group.versions).find((p) => p?.data.cover)?.data.cover,
+      },
     })),
   );
 }
 
-const { lang, view } = Astro.props as { lang: Locale; view: PostView };
+const { lang, view, cover: sharedCover } = Astro.props as { lang: Locale; view: PostView; cover?: ImageMetadata };
 const { post, postLang, isFallback, slug } = view;
 const { Content } = await render(post);
 const { title, description, date, updated, tags } = post.data;
 ---
 
-<Base lang={lang} path={`/posts/${slug}`} title={title} description={description}>
+<Base lang={lang} path={`/posts/${slug}`} title={title} description={description} image={post.data.cover ?? sharedCover} type="article">
   <article lang={isFallback ? htmlLang[postLang] : undefined}>
     <header class="post-header">
       <h1>{title}</h1>
