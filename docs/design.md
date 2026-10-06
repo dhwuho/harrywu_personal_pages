@@ -13,7 +13,7 @@ We will build a personal website with **Astro** and a **self-built React CMS** a
 - **Static first:** every public page is HTML generated at build time.
 - **No database:** GitHub is the only store for code, articles and images.
 - **Minimal backend:** one small Cloudflare function, only for GitHub login.
-- **Low lock-in:** articles are plain MDX, components are plain React, and Astro stays a thin layer.
+- **Low lock-in:** articles are plain Markdown (MDX only when needed), components are plain React, and Astro stays a thin layer.
 - **Single user:** only the owner can log in to the CMS.
 
 ## Requirements
@@ -53,7 +53,7 @@ We will build a personal website with **Astro** and a **self-built React CMS** a
 | Language | TypeScript | Type safety across site, CMS and function |
 | Site framework | Astro (built on Vite) | Static HTML, MDX, routing and sitemap/RSS built in; ships JS only for interactive parts |
 | UI components | React | Interactive and animated parts on the site, and the whole CMS |
-| Content format | MDX with frontmatter | Markdown plus custom components (embeds, callouts) |
+| Content format | Markdown (`.md`) by default; MDX (`.mdx`) only for posts with embeds | Plain Markdown is simpler and portable; MDX adds components like `<YouTube />` |
 | Content schema | Astro content collections (Zod) | Build fails on bad frontmatter |
 | MDX pipeline | unified (remark/rehype) + @mdx-js | One pipeline for the site build and the CMS preview |
 | CMS editor | CodeMirror 6 | Solid Markdown source editing, easy to customize |
@@ -98,8 +98,8 @@ One repo holds the site, the CMS, the function and all content.
 
 ```text
 src/
-  content/posts/<slug>/en.mdx      # English version (optional)
-  content/posts/<slug>/zh.mdx      # Chinese version (optional)
+  content/posts/<slug>/en.md       # English version (optional; .mdx if it has embeds)
+  content/posts/<slug>/zh.md       # Chinese version (optional; .mdx if it has embeds)
   content/posts/<slug>/*.webp      # images, shared by both versions
   i18n/en.json  i18n/zh.json       # UI strings: nav, buttons, page titles, tag names
   content.config.ts                # frontmatter schema (Zod)
@@ -130,6 +130,7 @@ draft: true
 - **Images:** stored next to their article, resized to max 2000 px and converted to WebP in the browser before upload. Astro makes the responsive sizes at build.
 - **Tags:** free-form, typed per post; no categories. Tag pages and a tag filter on the post list are generated. No separate tag file.
 - **Slugs:** the folder name is the URL: `/posts/<slug>` (English) and `/zh/posts/<slug>` (Chinese). Slugs are Latin letters, digits and hyphens.
+- **Format:** `.md` by default. Use `.mdx` only when a post needs a component such as `<YouTube />` or `<Bilibili />`. A folder must not hold both `en.md` and `en.mdx`; the build fails if it does.
 - **Articles stay portable:** no Astro imports inside MDX; embeds are global components (`<YouTube id="..." />`).
 
 ## Languages (English + Chinese)
@@ -140,7 +141,7 @@ The whole site exists in English and Chinese. A language switch in the header ch
 
 - **URLs:** English at `/`, Chinese at `/zh/` (Astro i18n routing). Every page has both versions, so the switch always lands on the matching page.
 - **UI text:** all nav labels, tab names, buttons and `<title>`s come from `src/i18n/en.json` and `zh.json`. No hard-coded UI text in components.
-- **Articles:** each post folder has `en.mdx`, `zh.mdx`, or both. A post with only one version still appears in both languages: the page uses the visitor's UI language and shows the article with a note ("This article is only in Chinese").
+- **Articles:** each post folder has an English file, a Chinese file, or both (`en.md`/`zh.md`, or `.mdx` with embeds). A post with only one version still appears in both languages: the page uses the visitor's UI language and shows the article with a note ("This article is only in Chinese").
 - **Tags:** free-form and shown as typed. Optional display names in the i18n files (`travel` → `旅行`) for tags used in both languages.
 - **Fonts:** system CJK fonts (PingFang SC, Microsoft YaHei, Noto Sans SC). No large Chinese web fonts.
 - **SEO:** `<html lang>`, `hreflang` links between versions, one RSS feed per language.
@@ -189,6 +190,13 @@ The GitHub App is installed on the content repo only, with **Contents: read and 
 - **Draft saves** also trigger a build, but drafts are not in the output. Add `[skip ci]` to draft commit messages if build minutes matter (check host support).
 - **Conflicts:** each save sends the file's last known SHA. If the file changed on GitHub, the CMS shows a warning instead of overwriting.
 - **Local autosave:** the open draft is kept in localStorage so a closed tab loses nothing.
+
+### File format
+
+- New posts are created as `.md`.
+- Inserting an embed (YouTube, Bilibili) switches that language's file to `.mdx`; the save commits the rename and the edit together.
+- If the last embed is removed, the CMS offers to switch back to `.md`.
+- The preview compiles `.md` as Markdown and `.mdx` as MDX, matching the build.
 
 ### Preview
 
@@ -247,7 +255,7 @@ Not in v1. Options, for when it's needed:
 
 | Risk | Mitigation |
 | --- | --- |
-| Astro or React breaking changes | Pin versions; upgrade on purpose. Content is plain MDX and components are plain React, so a move is days, not a rewrite |
+| Astro or React breaking changes | Pin versions; upgrade on purpose. Content is plain Markdown/MDX and components are plain React, so a move is days, not a rewrite |
 | Preview differs from the live page | Share one MDX plugin config and one component map between site and CMS |
 | Repo grows from images | Resize and convert to WebP before upload; move images to R2 if needed |
 | Token leak | GitHub App limited to one repo, contents only; 8-hour tokens; refresh token in an httpOnly cookie; strict CSP on `/admin` |

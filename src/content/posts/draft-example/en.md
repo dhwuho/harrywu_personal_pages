@@ -1,6 +1,6 @@
 ---
 title: A draft post
-description: Shows in `pnpm dev`, never in a production build.
+description: Shows in pnpm dev, never in a production build.
 date: 2026-10-07
 tags: [meta]
 draft: true

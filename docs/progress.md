@@ -111,3 +111,4 @@ Done when: a post with images is published without the terminal.
   - `pnpm build` and `pnpm check` pass (0 errors).
   - TypeScript pinned to v6: `astro check` doesn't support v7 yet.
   - First commit `ae961f5` (local only, not pushed). It uses your personal email; switch to the GitHub noreply address before pushing.
+- Decided: posts are **`.md` by default**, `.mdx` only when they need embeds. The build fails if a folder has both `en.md` and `en.mdx`. About page and the draft sample are now `.md`. The CMS will switch a file to `.mdx` when an embed is inserted.

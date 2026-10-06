@@ -18,12 +18,12 @@ export interface PostView {
   isFallback: boolean;
 }
 
-/** Split an entry id like "hello-world/zh" into its slug and language. */
+/** Split an entry id like "hello-world/zh.mdx" into its slug and language. */
 export function parseEntryId(id: string): { slug: string; lang: Locale } {
   const cut = id.lastIndexOf('/');
   const slug = id.slice(0, cut);
-  const lang = id.slice(cut + 1);
-  if (!isLocale(lang)) throw new Error(`Content file "${id}" must be named en.mdx or zh.mdx`);
+  const lang = id.slice(cut + 1).replace(/\.mdx?$/, '');
+  if (!isLocale(lang)) throw new Error(`Content file "${id}" must be named en.md(x) or zh.md(x)`);
   return { slug, lang };
 }
 
@@ -37,6 +37,9 @@ export async function getPostGroups(): Promise<PostGroup[]> {
   for (const entry of entries) {
     const { slug, lang } = parseEntryId(entry.id);
     const group = groups.get(slug) ?? { slug, versions: {} };
+    if (group.versions[lang]) {
+      throw new Error(`Post "${slug}" has both ${lang}.md and ${lang}.mdx; keep one`);
+    }
     group.versions[lang] = entry;
     groups.set(slug, group);
   }
@@ -77,6 +80,10 @@ export function collectTags(views: PostView[]): { tag: string; slug: string; cou
 /** A single page (e.g. "about") in `lang`, falling back to the default language. */
 export async function getPage(name: string, lang: Locale): Promise<PageEntry | undefined> {
   const entries = await getCollection('pages');
-  const find = (l: Locale) => entries.find((e) => e.id === `${name}/${l}`);
+  const find = (l: Locale) =>
+    entries.find((e) => {
+      const { slug, lang: entryLang } = parseEntryId(e.id);
+      return slug === name && entryLang === l;
+    });
   return find(lang) ?? find(defaultLocale);
 }
