@@ -9,7 +9,7 @@ Design: [design.md](design.md)
 | --- | --- | --- |
 | 0 | Planning and design doc | Done |
 | 1 | Site foundation (Astro + React + MDX + i18n) | Done (visual check pending) |
-| 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | Live; OG image and analytics left |
+| 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | Live; OG image left (analytics waits for domain) |
 | 3 | CMS login (GitHub App + auth Worker) | Not started |
 | 4 | CMS editor (CodeMirror, language tabs, preview, save) | Not started |
 | 5 | CMS media and tags | Not started |
@@ -41,7 +41,7 @@ Done when: a push to `main` updates the live `*.workers.dev` site.
 - [x] M2.2b Connect Workers Builds to the repo; live at https://harrywu-personal-pages.dh-wuho.workers.dev
 - [x] M2.3a RSS per language, sitemap, `robots.txt`, `SITE_URL` build variable
 - [ ] M2.3b Open Graph image
-- [ ] M2.4 Cloudflare Web Analytics
+- [ ] M2.4 Cloudflare Web Analytics: deferred; turn on automatic setup (no code) once the custom domain is on Cloudflare
 - [ ] M2.5 Custom domain (when bought)
 
 ### Phase 3: CMS login
@@ -120,3 +120,4 @@ Done when: a post with images is published without the terminal.
   - `SITE_URL` build variable set; canonical, RSS and sitemap use the live URL.
 - Added `robots.txt` (points to the sitemap, disallows `/admin`).
 - Internal links now end in `/` (`trailingSlash: 'always'`); before, each nav click cost a 307 redirect.
+- Decided: **no analytics script for now**. Web Analytics will use Cloudflare's automatic setup once a custom domain is on Cloudflare (automatic setup doesn't work on `workers.dev`). Worker Metrics tab covers basic request counts meanwhile.

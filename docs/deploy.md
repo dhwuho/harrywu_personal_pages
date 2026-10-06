@@ -48,7 +48,9 @@ Dashboard menu names can shift a little; look for the closest match.
 
 ### 4. (Optional) Web Analytics
 
-- Dashboard → **Analytics & Logs** → **Web Analytics** → add the site. Free and cookie-free. Tell Claude the token if a script snippet is needed.
+- On `workers.dev`, Web Analytics needs a script in the site's code (send Claude the token from the snippet). Automatic setup only works for a domain in your Cloudflare account.
+- Plan: turn on automatic Web Analytics after the custom domain is added. Direct link: https://dash.cloudflare.com/?to=/:account/web-analytics
+- Ad blockers hide visits from Web Analytics; the Worker **Metrics** tab counts raw requests (including bots).
 
 ## Day to day
 
