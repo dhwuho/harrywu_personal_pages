@@ -9,7 +9,7 @@ Design: [design.md](design.md)
 | --- | --- | --- |
 | 0 | Planning and design doc | Done |
 | 1 | Site foundation (Astro + React + MDX + i18n) | Done (visual check pending) |
-| 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | Not started |
+| 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | In progress (waiting on Cloudflare account) |
 | 3 | CMS login (GitHub App + auth Worker) | Not started |
 | 4 | CMS editor (CodeMirror, language tabs, preview, save) | Not started |
 | 5 | CMS media and tags | Not started |
@@ -36,8 +36,9 @@ Done when: two sample posts render in both languages with a YouTube and a Bilibi
 
 Done when: a push to `main` updates the live `*.workers.dev` site.
 
-- [ ] M2.1 Create GitHub repo (public), push
-- [ ] M2.2 Wrangler config: Workers static assets; connect Workers Builds to the repo
+- [x] M2.1 Create GitHub repo (public), push
+- [x] M2.2a Wrangler config for Workers static assets (`wrangler.jsonc`, dry run passes)
+- [ ] M2.2b Connect Workers Builds to the repo (you, following `docs/deploy.md`)
 - [ ] M2.3 RSS per language and sitemap (done early), Open Graph image, `robots.txt`; set `SITE_URL`
 - [ ] M2.4 Cloudflare Web Analytics
 - [ ] M2.5 Custom domain (when bought)
@@ -79,9 +80,9 @@ Done when: a post with images is published without the terminal.
 ## Next up
 
 - [ ] Look over the site in the browser (`pnpm dev`) and give design feedback
-- [ ] Fill in real social URLs (`src/config/site.ts`) and the About page (`src/content/pages/about/`)
-- [ ] Before the first push: set the git email to your GitHub noreply address and amend the first commit (repo is public)
-- [ ] Phase 2: deploy
+- [ ] Fill in real social URLs (`src/config/site.ts`) and the About page (`src/content/pages/about/`) (when ready)
+- [ ] Create a Cloudflare account and connect the repo: follow `docs/deploy.md`
+- [ ] Set the `SITE_URL` build variable once the workers.dev URL is known
 - [ ] Buy a domain (later)
 
 ## Log
@@ -110,5 +111,8 @@ Done when: a post with images is published without the terminal.
   - Drafts show in `pnpm dev`, not in `pnpm build` (verified).
   - `pnpm build` and `pnpm check` pass (0 errors).
   - TypeScript pinned to v6: `astro check` doesn't support v7 yet.
-  - First commit `ae961f5` (local only, not pushed). It uses your personal email; switch to the GitHub noreply address before pushing.
 - Decided: posts are **`.md` by default**, `.mdx` only when they need embeds. The build fails if a folder has both `en.md` and `en.mdx`. About page and the draft sample are now `.md`. The CMS will switch a file to `.mdx` when an embed is inserted.
+- Rewrote local commits to use the GitHub noreply email (`5953718+dhwuho@users.noreply.github.com`, set in repo git config). Name stays `HarryW`.
+- Pushed to https://github.com/dhwuho/harrywu_personal_pages (`main`).
+- Added `wrangler.jsonc` (Worker `harrywu-personal-pages`, static assets from `dist/`, 404 page), `.node-version` (24), `packageManager` pnpm 10.32.1, `pnpm deploy` script. `wrangler deploy --dry-run` passes.
+- Wrote `docs/deploy.md`: step-by-step Cloudflare setup.
