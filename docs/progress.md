@@ -9,7 +9,7 @@ Design: [design.md](design.md)
 | --- | --- | --- |
 | 0 | Planning and design doc | Done |
 | 1 | Site foundation (Astro + React + MDX + i18n) | Done (visual check pending) |
-| 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | In progress (waiting on Cloudflare account) |
+| 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | Live; OG image and analytics left |
 | 3 | CMS login (GitHub App + auth Worker) | Not started |
 | 4 | CMS editor (CodeMirror, language tabs, preview, save) | Not started |
 | 5 | CMS media and tags | Not started |
@@ -38,8 +38,9 @@ Done when: a push to `main` updates the live `*.workers.dev` site.
 
 - [x] M2.1 Create GitHub repo (public), push
 - [x] M2.2a Wrangler config for Workers static assets (`wrangler.jsonc`, dry run passes)
-- [ ] M2.2b Connect Workers Builds to the repo (you, following `docs/deploy.md`)
-- [ ] M2.3 RSS per language and sitemap (done early), Open Graph image, `robots.txt`; set `SITE_URL`
+- [x] M2.2b Connect Workers Builds to the repo; live at https://harrywu-personal-pages.dh-wuho.workers.dev
+- [x] M2.3a RSS per language, sitemap, `robots.txt`, `SITE_URL` build variable
+- [ ] M2.3b Open Graph image
 - [ ] M2.4 Cloudflare Web Analytics
 - [ ] M2.5 Custom domain (when bought)
 
@@ -81,8 +82,6 @@ Done when: a post with images is published without the terminal.
 
 - [ ] Look over the site in the browser (`pnpm dev`) and give design feedback
 - [ ] Fill in real social URLs (`src/config/site.ts`) and the About page (`src/content/pages/about/`) (when ready)
-- [ ] Create a Cloudflare account and connect the repo: follow `docs/deploy.md`
-- [ ] Set the `SITE_URL` build variable once the workers.dev URL is known
 - [ ] Buy a domain (later)
 
 ## Log
@@ -116,3 +115,8 @@ Done when: a post with images is published without the terminal.
 - Pushed to https://github.com/dhwuho/harrywu_personal_pages (`main`).
 - Added `wrangler.jsonc` (Worker `harrywu-personal-pages`, static assets from `dist/`, 404 page), `.node-version` (24), `packageManager` pnpm 10.32.1, `pnpm deploy` script. `wrangler deploy --dry-run` passes.
 - Wrote `docs/deploy.md`: step-by-step Cloudflare setup.
+- **Site is live:** https://harrywu-personal-pages.dh-wuho.workers.dev. Workers Builds deploys every push to `main` (~1 min).
+  - Cloudflare settings: production URL on, preview URLs off, Cloudflare Access off.
+  - `SITE_URL` build variable set; canonical, RSS and sitemap use the live URL.
+- Added `robots.txt` (points to the sitemap, disallows `/admin`).
+- Internal links now end in `/` (`trailingSlash: 'always'`); before, each nav click cost a 307 redirect.

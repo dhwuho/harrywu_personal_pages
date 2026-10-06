@@ -36,12 +36,13 @@ Dashboard menu names can shift a little; look for the closest match.
 | Deploy command | `npx wrangler deploy` (the default) |
 | Root directory | `/` (leave empty) |
 
-6. Click **Create and deploy**. The first build takes 1–2 minutes. Watch the log on the Worker's **Deployments** / **Builds** tab.
+6. Under domains: keep the **Production** workers.dev URL on, turn **Preview** URLs off, and leave **Access** off (it would put a login wall in front of the public site).
+7. Click **Create and deploy**. The first build takes 1–2 minutes. Watch the log on the Worker's **Deployments** / **Builds** tab.
 
 ### 3. Open the site and set the site URL
 
 1. When the build finishes, the Worker page shows the URL, e.g. `https://harrywu-personal-pages.<your-subdomain>.workers.dev`.
-2. Go to the Worker → **Settings** → **Build** → **Variables and secrets** and add a build variable:
+2. Go to the Worker → **Settings** → **Build** → **Variables and secrets** (the one under **Build**, not the runtime one) and add a variable:
    - `SITE_URL` = that URL (no trailing slash)
 3. Retry the latest build (or push any commit). This makes canonical links, RSS and the sitemap use the real address.
 
