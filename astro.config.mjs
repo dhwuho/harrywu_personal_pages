@@ -9,6 +9,8 @@ const site = process.env.SITE_URL ?? 'http://localhost:4321';
 
 export default defineConfig({
   site,
+  // Cloudflare serves pages as /path/; links must match to avoid a redirect.
+  trailingSlash: 'always',
   i18n: {
     locales: ['en', 'zh'],
     defaultLocale: 'en',

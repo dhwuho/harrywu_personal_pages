@@ -23,11 +23,14 @@ export function t(lang: Locale, key: UiKey, vars: Record<string, string> = {}): 
   return text.replace(/\{(\w+)\}/g, (_, name: string) => vars[name] ?? `{${name}}`);
 }
 
-/** Prefix a site path with the locale: `/posts` → `/zh/posts` for Chinese. */
+/**
+ * Prefix a site path with the locale and add the trailing slash pages are served with:
+ * `/posts` → `/posts/` (English), `/zh/posts/` (Chinese). File paths like `/rss.xml` keep no slash.
+ */
 export function localePath(lang: Locale, path = '/'): string {
-  const clean = path.startsWith('/') ? path : `/${path}`;
-  if (lang === defaultLocale) return clean;
-  return clean === '/' ? `/${lang}/` : `/${lang}${clean}`;
+  let clean = path.startsWith('/') ? path : `/${path}`;
+  if (!clean.endsWith('/') && !/\.[a-z0-9]+$/i.test(clean)) clean += '/';
+  return lang === defaultLocale ? clean : `/${lang}${clean}`;
 }
 
 /** Split `/zh/posts/x` into `{ lang: 'zh', path: '/posts/x' }`. */
