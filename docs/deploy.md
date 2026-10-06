@@ -68,6 +68,6 @@ Dashboard menu names can shift a little; look for the closest match.
 | Build minutes | 3,000 / month, 1 build at a time |
 | Files per deploy | 20,000, max 25 MiB each |
 
-## Custom domain (later)
+## Custom domain (phase 8, last)
 
-When you buy a domain (Cloudflare Registrar is simplest): Worker → **Settings** → **Domains & Routes** → **Add** → **Custom domain**. Then update the `SITE_URL` build variable.
+When you buy a domain (Cloudflare Registrar is simplest): Worker → **Settings** → **Domains & Routes** → **Add** → **Custom domain**. Then update the `SITE_URL` build variable, add the new callback URL to the GitHub App, and turn on automatic Web Analytics. Full checklist: phase 8 in `progress.md`.

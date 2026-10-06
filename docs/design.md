@@ -272,7 +272,7 @@ Each phase ends with something live. Dates are open until scope is confirmed.
 
 1. **Site foundation:** Astro + React + MDX + TypeScript; English/Chinese routing and UI strings; base layout, home, about, links page, post list, post page, tag pages.
     - Done when: two sample posts render locally in both languages with a YouTube and a Bilibili embed, and the switch changes the nav.
-2. **Deploy:** connect the repo to Cloudflare (free `*.workers.dev` address), RSS, sitemap, Open Graph tags, analytics. Custom domain once bought.
+2. **Deploy:** connect the repo to Cloudflare (free `*.workers.dev` address), RSS, sitemap, Open Graph tags.
     - Done when: a push to `main` updates the live site.
 3. **CMS login:** GitHub App, callback and refresh function, owner check, `/admin` shell.
     - Done when: only the owner can log in and see the post list.
@@ -282,6 +282,8 @@ Each phase ends with something live. Dates are open until scope is confirmed.
     - Done when: a post with images is published without touching the terminal.
 6. **Design polish:** animations, typography, performance pass (Lighthouse 95+).
 7. **Later:** Pagefind search, Chinese CMS UI, comments (see Comments).
+8. **Custom domain and Web Analytics (last):** add the domain to the Worker, update `SITE_URL` and the GitHub App callback, redirect `workers.dev`, turn on automatic Web Analytics.
+    - Nothing before this phase depends on a domain: the address comes only from `SITE_URL`, login callbacks use the request's origin, and cookies are host-only.
 
 ## Open questions
 

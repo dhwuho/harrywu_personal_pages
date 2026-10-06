@@ -9,12 +9,13 @@ Design: [design.md](design.md)
 | --- | --- | --- |
 | 0 | Planning and design doc | Done |
 | 1 | Site foundation (Astro + React + MDX + i18n) | Done (visual check pending) |
-| 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | Done (analytics waits for domain) |
+| 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | Done |
 | 3 | CMS login (GitHub App + auth Worker) | Not started |
 | 4 | CMS editor (CodeMirror, language tabs, preview, save) | Not started |
 | 5 | CMS media and tags | Not started |
 | 6 | Design polish and performance | Not started |
-| 7 | Later: search, Chinese CMS UI, comments, custom domain | Not started |
+| 7 | Later: search, Chinese CMS UI, comments | Not started |
+| 8 | Custom domain and Web Analytics (last; needs a bought domain) | Not started |
 
 ## Milestones
 
@@ -41,8 +42,6 @@ Done when: a push to `main` updates the live `*.workers.dev` site.
 - [x] M2.2b Connect Workers Builds to the repo; live at https://harrywu-personal-pages.dh-wuho.workers.dev
 - [x] M2.3a RSS per language, sitemap, `robots.txt`, `SITE_URL` build variable
 - [x] M2.3b Open Graph image: post cover (cropped 1200×630), else `public/og-default.png`
-- [ ] M2.4 Cloudflare Web Analytics: deferred; turn on automatic setup (no code) once the custom domain is on Cloudflare
-- [ ] M2.5 Custom domain (when bought)
 
 ### Phase 3: CMS login
 
@@ -78,11 +77,36 @@ Done when: a post with images is published without the terminal.
 - [ ] M6.2 Typography pass for English and Chinese
 - [ ] M6.3 Lighthouse 95+ on mobile; image and font audit
 
+### Phase 7: Later
+
+- [ ] M7.1 Site search (Pagefind), both languages
+- [ ] M7.2 Chinese CMS UI
+- [ ] M7.3 Comments (giscus first; see design.md)
+
+### Phase 8: Custom domain and Web Analytics (last)
+
+Done when: the site is served on the custom domain, old `workers.dev` links still work, and Web Analytics shows visits.
+Starts only after the domain is bought. Nothing in phases 1–7 waits on it.
+
+- [ ] M8.1 Buy the domain (Cloudflare Registrar, or elsewhere with nameservers moved to Cloudflare)
+- [ ] M8.2 Worker → Settings → Domains & Routes → add the custom domain
+- [ ] M8.3 Update the `SITE_URL` build variable; rebuild; check canonical, RSS, sitemap, OG image URLs
+- [ ] M8.4 GitHub App: add the new callback URL (keep the `workers.dev` one until the switch is verified)
+- [ ] M8.5 Redirect `workers.dev` to the custom domain (or turn its route off) so search engines see one address
+- [ ] M8.6 Web Analytics: automatic setup on the domain (no code)
+
+### No-domain rule (phases 1–7)
+
+So the domain never blocks other work:
+- The site address comes only from the `SITE_URL` build variable. No domain is written in code.
+- CMS login builds its callback URL from the current request's origin, so it works on `workers.dev`, `localhost` and the future domain.
+- Auth cookies are host-only (no `Domain=` attribute), so they work on any host.
+
 ## Next up
 
 - [ ] Look over the site in the browser (`pnpm dev`) and give design feedback
 - [ ] Fill in real social URLs (`src/config/site.ts`) and the About page (`src/content/pages/about/`) (when ready)
-- [ ] Buy a domain (later)
+- [ ] Buy a domain (whenever; phase 8)
 
 ## Log
 
@@ -122,3 +146,4 @@ Done when: a post with images is published without the terminal.
 - Internal links now end in `/` (`trailingSlash: 'always'`); before, each nav click cost a 307 redirect.
 - Decided: **no analytics script for now**. Web Analytics will use Cloudflare's automatic setup once a custom domain is on Cloudflare (automatic setup doesn't work on `workers.dev`). Worker Metrics tab covers basic request counts meanwhile.
 - Added link-preview (Open Graph) images: a post's `cover` is cropped to 1200×630; a cover on either language version is used for both; pages without one use `public/og-default.png` (made by `scripts/make-og-default.mjs`). Also `og:type`, `og:site_name`, `twitter:card`.
+- Moved everything that needs a domain (custom domain, Web Analytics, GitHub App callback update, `workers.dev` redirect) into a separate **last phase (8)**. Added a no-domain rule so phases 1–7 never wait on it.
