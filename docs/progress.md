@@ -8,7 +8,7 @@ Design: [design.md](design.md)
 | # | Phase | Status |
 | --- | --- | --- |
 | 0 | Planning and design doc | Done |
-| 1 | Site foundation (Astro + React + MDX + i18n) | In progress |
+| 1 | Site foundation (Astro + React + MDX + i18n) | Done (visual check pending) |
 | 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | Not started |
 | 3 | CMS login (GitHub App + auth Worker) | Not started |
 | 4 | CMS editor (CodeMirror, language tabs, preview, save) | Not started |
@@ -22,15 +22,15 @@ Design: [design.md](design.md)
 
 Done when: two sample posts render in both languages with a YouTube and a Bilibili embed, and the language switch changes the nav.
 
-- [ ] M1.1 Scaffold Astro + TypeScript (strict) with pnpm; add React and MDX integrations
-- [ ] M1.2 Design tokens (`src/styles/tokens.css`) and global styles: minimal, light
-- [ ] M1.3 i18n: Astro routing (`/` English, `/zh/` Chinese), `src/i18n/{en,zh}.json`, `t()` helper, language switch
-- [ ] M1.4 Content collection: `src/content/posts/<slug>/{en,zh}.mdx`, Zod schema, draft filter in one helper
-- [ ] M1.5 Base layout: header (nav + language switch), footer (social links), SEO head (`lang`, `hreflang`)
-- [ ] M1.6 Pages: home, about, links, post list with tag filter, post page, tag page (both languages)
-- [ ] M1.7 MDX components: `YouTube`, `Bilibili`, `Figure`; "only in X" note for untranslated posts
-- [ ] M1.8 Two sample posts (one bilingual, one Chinese-only); `pnpm build` passes
-- [ ] M1.9 Git init, first commit
+- [x] M1.1 Scaffold Astro + TypeScript (strict) with pnpm; add React and MDX integrations
+- [x] M1.2 Design tokens (`src/styles/tokens.css`) and global styles: minimal, light
+- [x] M1.3 i18n: Astro routing (`/` English, `/zh/` Chinese), `src/i18n/{en,zh}.json`, `t()` helper, language switch
+- [x] M1.4 Content collection: `src/content/posts/<slug>/{en,zh}.mdx`, Zod schema, draft filter in one helper
+- [x] M1.5 Base layout: header (nav + language switch), footer (social links), SEO head (`lang`, `hreflang`)
+- [x] M1.6 Pages: home, about, links, post list with tag filter, post page, tag page (both languages)
+- [x] M1.7 MDX components: `YouTube`, `Bilibili` (plain Markdown images instead of `Figure`); "only in X" note for untranslated posts
+- [x] M1.8 Two sample posts (one bilingual, one Chinese-only); `pnpm build` passes
+- [x] M1.9 Git init, first commit
 
 ### Phase 2: Deploy
 
@@ -38,7 +38,7 @@ Done when: a push to `main` updates the live `*.workers.dev` site.
 
 - [ ] M2.1 Create GitHub repo (public), push
 - [ ] M2.2 Wrangler config: Workers static assets; connect Workers Builds to the repo
-- [ ] M2.3 RSS per language, sitemap, Open Graph tags, `robots.txt`
+- [ ] M2.3 RSS per language and sitemap (done early), Open Graph image, `robots.txt`; set `SITE_URL`
 - [ ] M2.4 Cloudflare Web Analytics
 - [ ] M2.5 Custom domain (when bought)
 
@@ -78,7 +78,10 @@ Done when: a post with images is published without the terminal.
 
 ## Next up
 
-- [ ] Phase 1 milestones above
+- [ ] Look over the site in the browser (`pnpm dev`) and give design feedback
+- [ ] Fill in real social URLs (`src/config/site.ts`) and the About page (`src/content/pages/about/`)
+- [ ] Before the first push: set the git email to your GitHub noreply address and amend the first commit (repo is public)
+- [ ] Phase 2: deploy
 - [ ] Buy a domain (later)
 
 ## Log
@@ -101,3 +104,10 @@ Done when: a post with images is published without the terminal.
 - Decided: **minimal, light** visual design for site and CMS; light theme only in v1; shared tokens in `src/styles/tokens.css`.
 - Decided: start from Astro's **minimal** template, not the Blog starter or a community theme, because i18n, folder layout and styling all differ from those.
 - Set up milestones for phases 1–6.
+- **Phase 1 built.** Astro 7.3 + React 19 + MDX; 19 static pages; zero JS shipped to visitors.
+  - Pages under `src/pages/[...locale]/`: home, posts, post, tags, about, links, RSS; plus 404.
+  - Untranslated posts show in both languages with an "only in X" note.
+  - Drafts show in `pnpm dev`, not in `pnpm build` (verified).
+  - `pnpm build` and `pnpm check` pass (0 errors).
+  - TypeScript pinned to v6: `astro check` doesn't support v7 yet.
+  - First commit `ae961f5` (local only, not pushed). It uses your personal email; switch to the GitHub noreply address before pushing.
