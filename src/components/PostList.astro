@@ -1,29 +1,25 @@
 ---
-import { formatDate, localePath, t, type Locale } from '../i18n';
-import type { PostView } from '../lib/content';
+import { contentLang, formatDate, htmlLang, postSlug, type PostEntry } from '../lib/content';
 
 interface Props {
-  lang: Locale;
-  views: PostView[];
+  posts: PostEntry[];
 }
 
-const { lang, views } = Astro.props;
+const { posts } = Astro.props;
 ---
 
 {
-  views.length === 0 ? (
-    <p class="muted">{t(lang, 'posts.empty')}</p>
+  posts.length === 0 ? (
+    <p class="muted">No posts yet.</p>
   ) : (
     <ul class="post-list">
-      {views.map(({ slug, post, postLang, isFallback }) => (
+      {posts.map((post) => (
         <li>
-          <a href={localePath(lang, `/posts/${slug}`)}>
-            <span class="title" lang={isFallback ? postLang : undefined}>
-              {post.data.title}
-            </span>
-            {post.data.draft && <span class="tag">{t(lang, 'post.draft')}</span>}
+          <a href={`/posts/${postSlug(post)}/`}>
+            <span lang={htmlLang[contentLang(post)]}>{post.data.title}</span>
+            {post.data.draft && <span class="tag">Draft</span>}
           </a>
-          <time datetime={post.data.date.toISOString()}>{formatDate(lang, post.data.date)}</time>
+          <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
         </li>
       ))}
     </ul>

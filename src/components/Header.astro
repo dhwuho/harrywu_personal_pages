@@ -1,47 +1,29 @@
 ---
-import { localePath, locales, t, type Locale, type UiKey } from '../i18n';
+import { site } from '../config/site';
 
-interface Props {
-  lang: Locale;
-  path: string;
-}
-
-const { lang, path } = Astro.props;
-const other = locales.find((l) => l !== lang)!;
-
-const nav: { key: UiKey; href: string }[] = [
-  { key: 'nav.home', href: '/' },
-  { key: 'nav.posts', href: '/posts' },
-  { key: 'nav.about', href: '/about' },
-  { key: 'nav.links', href: '/links' },
+const path = Astro.url.pathname;
+const nav = [
+  { label: 'Home', href: '/' },
+  { label: 'Posts', href: '/posts/' },
+  { label: 'About', href: '/about/' },
+  { label: 'Links', href: '/links/' },
 ];
 const isActive = (href: string) =>
-  href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`) || (href === '/posts' && path.startsWith('/tags/'));
+  href === '/' ? path === '/' : path.startsWith(href) || (href === '/posts/' && path.startsWith('/tags/'));
 ---
 
 <header class="site-header container">
-  <a class="brand" href={localePath(lang, '/')}>{t(lang, 'site.title')}</a>
+  <a class="brand" href="/">{site.title}</a>
   <nav aria-label="Main">
     {
       nav.map((item) => (
-        <a href={localePath(lang, item.href)} aria-current={isActive(item.href) ? 'page' : undefined}>
-          {t(lang, item.key)}
+        <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+          {item.label}
         </a>
       ))
     }
-    <a class="lang-switch" href={localePath(other, path)} hreflang={other} data-lang={other}>
-      {t(lang, 'lang.switch')}
-    </a>
   </nav>
 </header>
-
-<script is:inline>
-  document.querySelector('.lang-switch')?.addEventListener('click', (e) => {
-    try {
-      localStorage.setItem('lang', e.currentTarget.dataset.lang);
-    } catch {}
-  });
-</script>
 
 <style>
   .site-header {
@@ -70,14 +52,5 @@ const isActive = (href: string) =>
   nav a:hover,
   nav a[aria-current='page'] {
     color: var(--color-text);
-  }
-  .lang-switch {
-    padding: 0 var(--space-2);
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
-  }
-  .lang-switch:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent) !important;
   }
 </style>

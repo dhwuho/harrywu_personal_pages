@@ -1,70 +1,48 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { defaultLocale, isLocale, locales, tagSlug, type Locale } from '../i18n';
 
 export type PostEntry = CollectionEntry<'posts'>;
 export type PageEntry = CollectionEntry<'pages'>;
+export type ContentLang = 'en' | 'zh';
 
-/** All language versions of one post. */
-export interface PostGroup {
-  slug: string;
-  versions: Partial<Record<Locale, PostEntry>>;
-}
+/** Value for the `lang` attribute, so browsers pick the right fonts and line breaking. */
+export const htmlLang: Record<ContentLang, string> = { en: 'en', zh: 'zh-CN' };
 
-/** The version to show for a UI language, and whether it is a fallback. */
-export interface PostView {
-  slug: string;
-  post: PostEntry;
-  postLang: Locale;
-  isFallback: boolean;
-}
-
-/** Split an entry id like "hello-world/zh.mdx" into its slug and language. */
-export function parseEntryId(id: string): { slug: string; lang: Locale } {
-  const cut = id.lastIndexOf('/');
-  const slug = id.slice(0, cut);
-  const lang = id.slice(cut + 1).replace(/\.mdx?$/, '');
-  if (!isLocale(lang)) throw new Error(`Content file "${id}" must be named en.md(x) or zh.md(x)`);
-  return { slug, lang };
+/** "hello-world/index.mdx" → "hello-world". */
+export function postSlug(post: PostEntry): string {
+  return post.id.slice(0, post.id.lastIndexOf('/'));
 }
 
 /**
- * Every post, grouped by slug, newest first.
+ * Published posts, newest first.
  * The only place drafts are filtered: drafts show in `astro dev`, never in a build.
  */
-export async function getPostGroups(): Promise<PostGroup[]> {
+export async function getPosts(): Promise<PostEntry[]> {
   const entries = await getCollection('posts', (e) => import.meta.env.DEV || !e.data.draft);
-  const groups = new Map<string, PostGroup>();
+  const seen = new Set<string>();
   for (const entry of entries) {
-    const { slug, lang } = parseEntryId(entry.id);
-    const group = groups.get(slug) ?? { slug, versions: {} };
-    if (group.versions[lang]) {
-      throw new Error(`Post "${slug}" has both ${lang}.md and ${lang}.mdx; keep one`);
-    }
-    group.versions[lang] = entry;
-    groups.set(slug, group);
+    const slug = postSlug(entry);
+    if (seen.has(slug)) throw new Error(`Post "${slug}" has both index.md and index.mdx; keep one`);
+    seen.add(slug);
   }
-  return [...groups.values()].sort((a, b) => latestDate(b) - latestDate(a));
+  return entries.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 }
 
-function latestDate(group: PostGroup): number {
-  return Math.max(...Object.values(group.versions).map((p) => p!.data.date.getTime()));
+/** The post's language: `lang` from frontmatter, else detected from its text. */
+export function contentLang(entry: PostEntry | PageEntry): ContentLang {
+  return entry.data.lang ?? detectLang(`${entry.data.title}\n${entry.body ?? ''}`);
 }
 
-/** Pick the version for `lang`, falling back to the other language. */
-export function viewFor(group: PostGroup, lang: Locale): PostView {
-  const order = [lang, ...locales.filter((l) => l !== lang)];
-  const postLang = order.find((l) => group.versions[l])!;
-  return { slug: group.slug, post: group.versions[postLang]!, postLang, isFallback: postLang !== lang };
+/** Chinese if Chinese characters outnumber English words. */
+export function detectLang(text: string): ContentLang {
+  const cjk = text.match(/[㐀-鿿豈-﫿]/g)?.length ?? 0;
+  const words = text.match(/[A-Za-z]+/g)?.length ?? 0;
+  return cjk > words ? 'zh' : 'en';
 }
 
-export async function getPostViews(lang: Locale): Promise<PostView[]> {
-  return (await getPostGroups()).map((g) => viewFor(g, lang));
-}
-
-/** Tags used by the posts shown in `lang`, most used first. */
-export function collectTags(views: PostView[]): { tag: string; slug: string; count: number }[] {
+/** Tags across posts, most used first. Tags are free-form and shown as typed. */
+export function collectTags(posts: PostEntry[]): { tag: string; slug: string; count: number }[] {
   const counts = new Map<string, { tag: string; count: number }>();
-  for (const { post } of views) {
+  for (const post of posts) {
     for (const tag of post.data.tags) {
       const slug = tagSlug(tag);
       const item = counts.get(slug) ?? { tag, count: 0 };
@@ -77,13 +55,17 @@ export function collectTags(views: PostView[]): { tag: string; slug: string; cou
     .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
 }
 
-/** A single page (e.g. "about") in `lang`, falling back to the default language. */
-export async function getPage(name: string, lang: Locale): Promise<PageEntry | undefined> {
+/** URL-safe form of a free-form tag. */
+export function tagSlug(tag: string): string {
+  return tag.trim().toLowerCase().replace(/\s+/g, '-');
+}
+
+/** A single page by file name, e.g. "about" for src/content/pages/about.md. */
+export async function getPage(name: string): Promise<PageEntry | undefined> {
   const entries = await getCollection('pages');
-  const find = (l: Locale) =>
-    entries.find((e) => {
-      const { slug, lang: entryLang } = parseEntryId(e.id);
-      return slug === name && entryLang === l;
-    });
-  return find(lang) ?? find(defaultLocale);
+  return entries.find((e) => e.id.replace(/\.mdx?$/, '') === name);
+}
+
+export function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(date);
 }

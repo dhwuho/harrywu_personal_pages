@@ -8,29 +8,29 @@ Design: [design.md](design.md)
 | # | Phase | Status |
 | --- | --- | --- |
 | 0 | Planning and design doc | Done |
-| 1 | Site foundation (Astro + React + MDX + i18n) | Done (visual check pending) |
+| 1 | Site foundation (Astro + React + MDX) | Done (visual check pending) |
 | 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | Done |
 | 3 | CMS login (GitHub App + auth Worker) | Not started |
-| 4 | CMS editor (CodeMirror, language tabs, preview, save) | Not started |
+| 4 | CMS editor (CodeMirror, Chinese input, preview, save) | Not started |
 | 5 | CMS media and tags | Not started |
 | 6 | Design polish and performance | Not started |
-| 7 | Later: search, Chinese CMS UI, comments | Not started |
+| 7 | Later: search, comments | Not started |
 | 8 | Custom domain and Web Analytics (last; needs a bought domain) | Not started |
 
 ## Milestones
 
 ### Phase 1: Site foundation
 
-Done when: two sample posts render in both languages with a YouTube and a Bilibili embed, and the language switch changes the nav.
+Done when: an English and a Chinese sample post render with a YouTube and a Bilibili embed.
 
 - [x] M1.1 Scaffold Astro + TypeScript (strict) with pnpm; add React and MDX integrations
 - [x] M1.2 Design tokens (`src/styles/tokens.css`) and global styles: minimal, light
-- [x] M1.3 i18n: Astro routing (`/` English, `/zh/` Chinese), `src/i18n/{en,zh}.json`, `t()` helper, language switch
-- [x] M1.4 Content collection: `src/content/posts/<slug>/{en,zh}.mdx`, Zod schema, draft filter in one helper
-- [x] M1.5 Base layout: header (nav + language switch), footer (social links), SEO head (`lang`, `hreflang`)
-- [x] M1.6 Pages: home, about, links, post list with tag filter, post page, tag page (both languages)
-- [x] M1.7 MDX components: `YouTube`, `Bilibili` (plain Markdown images instead of `Figure`); "only in X" note for untranslated posts
-- [x] M1.8 Two sample posts (one bilingual, one Chinese-only); `pnpm build` passes
+- [x] M1.3 ~~Bilingual site (`/zh/`, UI strings, language switch)~~ replaced by: English UI, posts in English or Chinese with `lang` marking
+- [x] M1.4 Content collection: `src/content/posts/<slug>/index.md(x)`, Zod schema, draft filter in one helper
+- [x] M1.5 Base layout: header (nav), footer (social links), SEO head
+- [x] M1.6 Pages: home, about, links, post list with tag filter, post page, tag page
+- [x] M1.7 MDX components: `YouTube`, `Bilibili` (plain Markdown images instead of `Figure`)
+- [x] M1.8 Sample posts (one English, one Chinese, one draft); `pnpm build` passes
 - [x] M1.9 Git init, first commit
 
 ### Phase 2: Deploy
@@ -40,7 +40,7 @@ Done when: a push to `main` updates the live `*.workers.dev` site.
 - [x] M2.1 Create GitHub repo (public), push
 - [x] M2.2a Wrangler config for Workers static assets (`wrangler.jsonc`, dry run passes)
 - [x] M2.2b Connect Workers Builds to the repo; live at https://harrywu-personal-pages.dh-wuho.workers.dev
-- [x] M2.3a RSS per language, sitemap, `robots.txt`, `SITE_URL` build variable
+- [x] M2.3a RSS, sitemap, `robots.txt`, `SITE_URL` build variable
 - [x] M2.3b Open Graph image: post cover (cropped 1200×630), else `public/og-default.png`
 
 ### Phase 3: CMS login
@@ -50,16 +50,16 @@ Done when: only the owner can log in to `/admin` and see the post list.
 - [ ] M3.1 Create the GitHub App (repo-only, Contents read/write)
 - [ ] M3.2 Worker routes `/api/auth/login`, `/callback`, `/refresh`, `/logout`; owner ID check; state check
 - [ ] M3.3 `/admin` React app shell with the shared tokens
-- [ ] M3.4 GitHub API client; post list from the repo (both languages, draft status)
+- [ ] M3.4 GitHub API client; post list from the repo (with language and draft status)
 
 ### Phase 4: CMS editor
 
-Done when: a post can be written, previewed and published from the browser in either language.
+Done when: a post can be written in English or Chinese, previewed and published from the browser.
 
 - [ ] M4.1 CodeMirror 6 editor (Markdown, IME tested with pinyin)
-- [ ] M4.2 Frontmatter side panel (title, description, date, tags, draft)
+- [ ] M4.2 Frontmatter side panel (title, description, date, tags, cover, language, draft)
 - [ ] M4.3 Live MDX preview with the site's components and styles
-- [ ] M4.4 Language tabs, translate mode, "create translation", outdated flag
+- [ ] M4.4 Chinese support: language auto-detect with override, character count for Chinese, CJK fonts in editor and preview
 - [ ] M4.5 Save as one commit (Git Data API), SHA conflict check, localStorage autosave
 - [ ] M4.6 Publish = `draft: false` + save; new post flow with slug
 
@@ -74,14 +74,13 @@ Done when: a post with images is published without the terminal.
 ### Phase 6: Design polish
 
 - [ ] M6.1 Animations: scroll fade-in, hover states, View Transitions; reduced-motion respected
-- [ ] M6.2 Typography pass for English and Chinese
+- [ ] M6.2 Typography pass for English and Chinese posts
 - [ ] M6.3 Lighthouse 95+ on mobile; image and font audit
 
 ### Phase 7: Later
 
-- [ ] M7.1 Site search (Pagefind), both languages
-- [ ] M7.2 Chinese CMS UI
-- [ ] M7.3 Comments (giscus first; see design.md)
+- [ ] M7.1 Site search (Pagefind), including Chinese posts
+- [ ] M7.2 Comments (giscus first; see design.md)
 
 ### Phase 8: Custom domain and Web Analytics (last)
 
@@ -147,3 +146,4 @@ So the domain never blocks other work:
 - Decided: **no analytics script for now**. Web Analytics will use Cloudflare's automatic setup once a custom domain is on Cloudflare (automatic setup doesn't work on `workers.dev`). Worker Metrics tab covers basic request counts meanwhile.
 - Added link-preview (Open Graph) images: a post's `cover` is cropped to 1200×630; a cover on either language version is used for both; pages without one use `public/og-default.png` (made by `scripts/make-og-default.mjs`). Also `og:type`, `og:site_name`, `twitter:card`.
 - Moved everything that needs a domain (custom domain, Web Analytics, GitHub App callback update, `workers.dev` redirect) into a separate **last phase (8)**. Added a no-domain rule so phases 1–7 never wait on it.
+- **Changed: site UI is English only.** Removed `/zh/` pages, the language switch, `src/i18n/` and translation pairs. Posts and the About page can still be written in Chinese: each post's `lang` comes from frontmatter or is detected from the text, and the article is marked `lang="zh-CN"` for Chinese fonts and 1.8 line height. Content is now `src/content/posts/<slug>/index.md(x)` and `src/content/pages/about.md`. One RSS feed. CMS drops language tabs/translate mode; keeps Chinese input, language field and character counts.

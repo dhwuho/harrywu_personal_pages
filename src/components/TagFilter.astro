@@ -1,25 +1,22 @@
 ---
-import { localePath, t, tagLabel, type Locale } from '../i18n';
-
 interface Props {
-  lang: Locale;
   tags: { tag: string; slug: string; count: number }[];
   /** Slug of the selected tag; none means "All". */
   current?: string;
 }
 
-const { lang, tags, current } = Astro.props;
+const { tags, current } = Astro.props;
 ---
 
 {
   tags.length > 0 && (
     <nav class="tag-filter" aria-label="Tags">
-      <a class="tag" href={localePath(lang, '/posts')} aria-current={current ? undefined : 'page'}>
-        {t(lang, 'posts.allTags')}
+      <a class="tag" href="/posts/" aria-current={current ? undefined : 'page'}>
+        All
       </a>
       {tags.map(({ tag, slug, count }) => (
-        <a class="tag" href={localePath(lang, `/tags/${slug}`)} aria-current={slug === current ? 'page' : undefined}>
-          {tagLabel(lang, tag)} <span class="count">{count}</span>
+        <a class="tag" href={`/tags/${slug}/`} aria-current={slug === current ? 'page' : undefined}>
+          {tag} <span class="count">{count}</span>
         </a>
       ))}
     </nav>

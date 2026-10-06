@@ -98,10 +98,8 @@ One repo holds the site, the CMS, the function and all content.
 
 ```text
 src/
-  content/posts/<slug>/en.md       # English version (optional; .mdx if it has embeds)
-  content/posts/<slug>/zh.md       # Chinese version (optional; .mdx if it has embeds)
+  content/posts/<slug>/index.md    # the post, English or Chinese (.mdx if it has embeds)
   content/posts/<slug>/*.webp      # images, shared by both versions
-  i18n/en.json  i18n/zh.json       # UI strings: nav, buttons, page titles, tag names
   content.config.ts                # frontmatter schema (Zod)
   components/                      # plain React; shared by site + CMS preview
   styles/tokens.css                # colors, fonts, spacing; shared by site + CMS
@@ -121,44 +119,41 @@ date: 2026-10-06
 updated: 2026-10-08        # optional
 tags: [react, life]
 cover: ./cover.webp        # optional; link-preview image (else og-default.png)
+lang: zh                   # optional; en or zh, detected from the text if left out
 draft: true
 ```
 
 ### Rules
 
 - **Drafts:** `draft: true` posts are left out of production builds but shown in `astro dev`.
-- **Cover / link preview:** `cover` becomes the share image (cropped to 1200×630). A cover on either language version is used for both. No cover → `public/og-default.png`.
+- **Cover / link preview:** `cover` becomes the share image (cropped to 1200×630). No cover → `public/og-default.png`.
 - **Images:** stored next to their article, resized to max 2000 px and converted to WebP in the browser before upload. Astro makes the responsive sizes at build.
 - **Tags:** free-form, typed per post; no categories. Tag pages and a tag filter on the post list are generated. No separate tag file.
-- **Slugs:** the folder name is the URL: `/posts/<slug>` (English) and `/zh/posts/<slug>` (Chinese). Slugs are Latin letters, digits and hyphens.
-- **Format:** `.md` by default. Use `.mdx` only when a post needs a component such as `<YouTube />` or `<Bilibili />`. A folder must not hold both `en.md` and `en.mdx`; the build fails if it does.
+- **Slugs:** the folder name is the URL: `/posts/<slug>/`. Slugs are Latin letters, digits and hyphens.
+- **Format:** `.md` by default. Use `.mdx` only when a post needs a component such as `<YouTube />` or `<Bilibili />`. A folder must not hold both `index.md` and `index.mdx`; the build fails if it does.
 - **Articles stay portable:** no Astro imports inside MDX; embeds are global components (`<YouTube id="..." />`).
 
-## Languages (English + Chinese)
+## Languages
 
-The whole site exists in English and Chinese. A language switch in the header changes the navigation, tab names, buttons and page titles, and keeps you on the same page.
+The site's interface is **English only**: one set of pages, no `/zh/` URLs, no language switch. **Posts and the About page can be written in English or Chinese**, and both render and edit well.
 
 ### Site
 
-- **URLs:** English at `/`, Chinese at `/zh/` (Astro i18n routing). Every page has both versions, so the switch always lands on the matching page.
-- **UI text:** all nav labels, tab names, buttons and `<title>`s come from `src/i18n/en.json` and `zh.json`. No hard-coded UI text in components.
-- **Articles:** each post folder has an English file, a Chinese file, or both (`en.md`/`zh.md`, or `.mdx` with embeds). A post with only one version still appears in both languages: the page uses the visitor's UI language and shows the article with a note ("This article is only in Chinese").
-- **Tags:** free-form and shown as typed. Optional display names in the i18n files (`travel` → `旅行`) for tags used in both languages.
-- **Fonts:** system CJK fonts (PingFang SC, Microsoft YaHei, Noto Sans SC). No large Chinese web fonts.
-- **SEO:** `<html lang>`, `hreflang` links between versions, one RSS feed per language.
-- **Remembering the choice:** the switch saves the language in localStorage; the root page offers the saved language on next visit. No automatic redirect, so search engines see both versions.
+- **One language per post.** A post is written in English or Chinese; there are no translation pairs.
+- **Language marking:** each post's `lang` is set in frontmatter or detected from its text (Chinese if Chinese characters outnumber English words). The article gets `lang="zh-CN"` or `lang="en"`, so browsers pick the right fonts, line breaking and punctuation.
+- **Chinese typography:** line height 1.8 for Chinese text; system CJK fonts (PingFang SC, Microsoft YaHei, Noto Sans SC); no large Chinese web fonts.
+- **Mixed text:** a Chinese post can quote English and the reverse; the font stack covers both.
+- **Tags:** free-form, shown as typed (Chinese tags are fine).
+- **UI text:** written in English directly in the components and `src/config/site.ts`.
 
 ### CMS
 
-- **Language tabs per post:** `EN | 中文` in the editor. Each version has its own title, description and draft status.
-- **Translate mode:** the other language's text shown read-only beside the editor, for side-by-side translation.
-- **Create translation:** copies frontmatter (tags, cover, date) and starts an empty body.
-- **Outdated flag:** if one version was updated after the other, the CMS marks the other "may be outdated".
 - **Chinese input:** CodeMirror 6 supports IME composition; test pinyin input early in phase 4.
+- **Language field:** auto-filled from the text; can be overridden in the frontmatter panel.
 - **Counts:** words for English, characters for Chinese.
-- **Slugs:** suggested from the English title; typed by hand for Chinese-only posts.
+- **Slugs:** suggested from an English title; typed by hand (Latin letters) for Chinese titles.
 - **Preview:** sets `lang` and uses the site's fonts, so line breaks and punctuation match the live page.
-- **CMS UI language:** English for v1; the same i18n files make a Chinese UI easy later.
+- **CMS UI language:** English.
 
 ## CMS design
 
@@ -195,7 +190,7 @@ The GitHub App is installed on the content repo only, with **Contents: read and 
 ### File format
 
 - New posts are created as `.md`.
-- Inserting an embed (YouTube, Bilibili) switches that language's file to `.mdx`; the save commits the rename and the edit together.
+- Inserting an embed (YouTube, Bilibili) switches the post's file to `.mdx`; the save commits the rename and the edit together.
 - If the last embed is removed, the CMS offers to switch back to `.md`.
 - The preview compiles `.md` as Markdown and `.mdx` as MDX, matching the build.
 
@@ -250,7 +245,7 @@ Not in v1. Options, for when it's needed:
 | Drafts | `draft: true` frontmatter | Drafts branch | One branch, no merges, easy preview in dev |
 | Categories | None; free-form tags | Fixed categories | Tags alone are enough to filter; less to manage |
 | Repo visibility | Public | Private | Published articles are public anyway; drafts and history being visible is accepted |
-| Languages | English + Chinese, full UI in both | English only | Audience on both LinkedIn and Bilibili |
+| Languages | English UI; posts in English or Chinese | Full bilingual site (`/zh/`, translations) | Less to build and maintain; Chinese posts still render and edit well |
 
 ## Risks and mitigations
 
@@ -270,18 +265,18 @@ Not in v1. Options, for when it's needed:
 
 Each phase ends with something live. Dates are open until scope is confirmed.
 
-1. **Site foundation:** Astro + React + MDX + TypeScript; English/Chinese routing and UI strings; base layout, home, about, links page, post list, post page, tag pages.
-    - Done when: two sample posts render locally in both languages with a YouTube and a Bilibili embed, and the switch changes the nav.
+1. **Site foundation:** Astro + React + MDX + TypeScript; base layout, home, about, links page, post list, post page, tag pages.
+    - Done when: an English and a Chinese sample post render with a YouTube and a Bilibili embed.
 2. **Deploy:** connect the repo to Cloudflare (free `*.workers.dev` address), RSS, sitemap, Open Graph tags.
     - Done when: a push to `main` updates the live site.
 3. **CMS login:** GitHub App, callback and refresh function, owner check, `/admin` shell.
     - Done when: only the owner can log in and see the post list.
-4. **CMS editor:** CodeMirror, language tabs and translate mode, frontmatter form, live MDX preview, save as one commit, conflict check, autosave.
+4. **CMS editor:** CodeMirror (Chinese IME tested), frontmatter form with language field, live MDX preview, save as one commit, conflict check, autosave.
     - Done when: a post can be written, previewed and published from the browser.
 5. **CMS media and tags:** image upload with resize, tag rename/merge, deploy status.
     - Done when: a post with images is published without touching the terminal.
 6. **Design polish:** animations, typography, performance pass (Lighthouse 95+).
-7. **Later:** Pagefind search, Chinese CMS UI, comments (see Comments).
+7. **Later:** Pagefind search, comments (see Comments).
 8. **Custom domain and Web Analytics (last):** add the domain to the Worker, update `SITE_URL` and the GitHub App callback, redirect `workers.dev`, turn on automatic Web Analytics.
     - Nothing before this phase depends on a domain: the address comes only from `SITE_URL`, login callbacks use the request's origin, and cookies are host-only.
 
@@ -290,7 +285,7 @@ Each phase ends with something live. Dates are open until scope is confirmed.
 - [x] Cloudflare Workers static assets or Pages? **Workers** (decided 2026-10-06)
 - [x] Domain name? **Later**, once bought; use the free `*.workers.dev` address until then.
 - [x] Content repo public or private? **Public** (decided 2026-10-06)
-- [x] Site language? **English + Chinese at launch** (decided 2026-10-06)
+- [x] Site language? **English UI; posts in English or Chinese** (changed 2026-10-06 from a full bilingual site)
 - [x] Categories? **None**; free-form tags only.
 - [x] Comments? **Not for now**; options in Comments (later).
 - [x] Visual direction? **Minimal and light**, same look for site and CMS; no reference sites.

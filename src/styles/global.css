@@ -20,6 +20,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Chinese text (posts or pages with lang="zh-CN") gets a bit more line spacing. */
+:lang(zh) {
+  line-height: 1.8;
+}
+:lang(zh) h1,
+:lang(zh) h2,
+:lang(zh) h3 {
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
 a {
   color: inherit;
   text-decoration-color: var(--color-border);

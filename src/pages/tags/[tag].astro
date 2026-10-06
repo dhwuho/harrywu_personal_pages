@@ -1,0 +1,21 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/PostList.astro';
+import TagFilter from '../../components/TagFilter.astro';
+import { collectTags, getPosts, tagSlug } from '../../lib/content';
+
+export async function getStaticPaths() {
+  return collectTags(await getPosts()).map(({ slug, tag }) => ({ params: { tag: slug }, props: { tag } }));
+}
+
+const { tag } = Astro.props;
+const slug = tagSlug(tag);
+const posts = await getPosts();
+const tagged = posts.filter((post) => post.data.tags.some((name) => tagSlug(name) === slug));
+---
+
+<Base title={tag}>
+  <h1 class="page-title">Posts tagged “{tag}”</h1>
+  <TagFilter tags={collectTags(posts)} current={slug} />
+  <PostList posts={tagged} />
+</Base>

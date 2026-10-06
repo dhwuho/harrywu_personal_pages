@@ -1,15 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
-import { localePath, t } from '../i18n';
-
-// Static 404 page; English and Chinese text together since the language is unknown.
 ---
 
-<Base lang="en" path="/404" title={t('en', '404.title')}>
-  <h1 class="page-title">{t('en', '404.title')}</h1>
-  <p class="page-lead">{t('en', '404.body')} <span lang="zh-CN">{t('zh', '404.body')}</span></p>
-  <p>
-    <a href={localePath('en', '/')}>{t('en', '404.back')}</a> ·
-    <a href={localePath('zh', '/')} lang="zh-CN">{t('zh', '404.back')}</a>
-  </p>
+<Base title="Page not found">
+  <h1 class="page-title">Page not found</h1>
+  <p class="page-lead">The page you're looking for doesn't exist.</p>
+  <p><a href="/">Back to home</a></p>
 </Base>

@@ -1,12 +1,6 @@
 ---
-import { socialLinks } from '../config/site';
-import { localePath, t, type Locale } from '../i18n';
+import { site, socialLinks } from '../config/site';
 
-interface Props {
-  lang: Locale;
-}
-
-const { lang } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
@@ -21,9 +15,9 @@ const year = new Date().getFullYear();
         </li>
       ))
     }
-    <li><a href={localePath(lang, '/rss.xml')}>{t(lang, 'footer.rss')}</a></li>
+    <li><a href="/rss.xml">RSS</a></li>
   </ul>
-  <p class="muted">© {year} {t(lang, 'site.title')}</p>
+  <p class="muted">© {year} {site.title}</p>
 </footer>
 
 <style>

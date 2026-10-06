@@ -1,23 +1,20 @@
 ---
-import Base from '../../layouts/Base.astro';
-import { socialLinks } from '../../config/site';
-import { localeStaticPaths, t, type Locale } from '../../i18n';
+import Base from '../layouts/Base.astro';
+import { socialLinks } from '../config/site';
 
-export const getStaticPaths = localeStaticPaths;
-
-const { lang } = Astro.props as { lang: Locale };
+const description = 'Where else to find me.';
 ---
 
-<Base lang={lang} path="/links" title={t(lang, 'links.title')} description={t(lang, 'links.description')}>
-  <h1 class="page-title">{t(lang, 'links.title')}</h1>
-  <p class="page-lead">{t(lang, 'links.description')}</p>
+<Base title="Links" description={description}>
+  <h1 class="page-title">Links</h1>
+  <p class="page-lead">{description}</p>
   <ul class="links">
     {
       socialLinks.map((link) => (
         <li>
           <a href={link.url} rel="me noopener" target="_blank">
             <span class="name">{link.name}</span>
-            <span class="note">{link.note[lang]}</span>
+            <span class="note">{link.note}</span>
             <span class="arrow" aria-hidden="true">↗</span>
           </a>
         </li>

@@ -1,0 +1,16 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/PostList.astro';
+import TagFilter from '../../components/TagFilter.astro';
+import { collectTags, getPosts } from '../../lib/content';
+
+const posts = await getPosts();
+const description = "Everything I've written, newest first.";
+---
+
+<Base title="Posts" description={description}>
+  <h1 class="page-title">Posts</h1>
+  <p class="page-lead">{description}</p>
+  <TagFilter tags={collectTags(posts)} />
+  <PostList posts={posts} />
+</Base>

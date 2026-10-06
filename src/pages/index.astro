@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import PostList from '../components/PostList.astro';
+import { site } from '../config/site';
+import { getPosts } from '../lib/content';
+
+const recent = (await getPosts()).slice(0, 5);
+---
+
+<Base>
+  <section class="hero">
+    <h1>{site.title}</h1>
+    <p>{site.intro}</p>
+  </section>
+
+  <section>
+    <h2 class="section-title">Recent posts</h2>
+    <PostList posts={recent} />
+    <p><a href="/posts/">All posts →</a></p>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    margin: var(--space-16) 0 var(--space-12);
+  }
+  .hero h1 {
+    font-size: var(--text-2xl);
+    margin: 0 0 var(--space-3);
+  }
+  .hero p {
+    color: var(--color-muted);
+    font-size: var(--text-lg);
+    max-width: 36rem;
+    margin: 0;
+  }
+  .section-title {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 var(--space-2);
+  }
+</style>
