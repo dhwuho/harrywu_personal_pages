@@ -15,7 +15,7 @@
   // (Worker → Settings → Variables and secrets → Secret), never in this file.
   "vars": {
     // GitHub App client ID (docs/cms-setup.md). Empty = sign-in disabled.
-    "GITHUB_CLIENT_ID": "",
+    "GITHUB_CLIENT_ID": "Iv23liB5KQiPAssQtfQT",
     // GitHub user ID allowed to sign in (dhwuho).
     "OWNER_ID": "5953718"
   },
