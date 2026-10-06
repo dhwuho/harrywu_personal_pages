@@ -99,15 +99,17 @@ One repo holds the site, the CMS, the function and all content.
 ```text
 src/
   content/posts/<slug>/index.md    # the post, English or Chinese (.mdx if it has embeds)
-  content/posts/<slug>/*.webp      # images, shared by both versions
+  content/posts/<slug>/*.webp      # the post's images
   content.config.ts                # frontmatter schema (Zod)
   components/                      # plain React; shared by site + CMS preview
   styles/tokens.css                # colors, fonts, spacing; shared by site + CMS
   layouts/  pages/                 # Astro: thin layer only
   pages/admin/                     # CMS entry; renders the React CMS app
-  admin/                           # CMS React app source
+  admin/                           # CMS React app (App, GitHub client, editor, preview)
+  lib/lang.ts                      # language detection, slugs; shared by site + CMS
 worker/                            # Worker script: GitHub App token exchange (/api/auth/*)
-public/                            # favicon, fonts, static files
+public/                            # favicon, og-default.png, _headers (CMS security headers)
+docs/                              # design, progress, deploy and CMS setup guides
 ```
 
 ### Frontmatter
@@ -157,46 +159,62 @@ The site's interface is **English only**: one set of pages, no `/zh/` URLs, no l
 
 ## CMS design
 
-The CMS is a client-side React app at `/admin`. It talks to the GitHub API directly; the only server code is the login function.
+The CMS is a client-side React app at `/admin/` (`src/admin/`, loaded with `client:only`). It talks to the GitHub API directly; the only server code is the sign-in Worker (`worker/index.ts`). Setup steps: `docs/cms-setup.md`.
 
-### Login (GitHub App)
+### Sign-in (GitHub App)
 
-1. CMS sends the browser to GitHub's authorize page with the app's client ID and a random `state`.
-2. GitHub redirects to `/api/auth/callback` (Cloudflare function).
-3. The function checks `state`, swaps the code for a user token using the app secret, and checks the GitHub user ID matches the owner. Anyone else is rejected.
-4. The access token goes to the CMS (kept in memory/sessionStorage). The refresh token stays in an httpOnly cookie.
-5. Tokens expire after 8 hours; `/api/auth/refresh` gets a new one silently.
+1. `/api/auth/login` sends the browser to GitHub's authorize page with the app's client ID and a random `state` (cookie, 10 min).
+2. GitHub redirects to `/api/auth/callback`. The Worker checks `state`, swaps the code for tokens with the app secret, and checks the GitHub user ID equals `OWNER_ID`. Anyone else gets "Not allowed".
+3. Access and refresh tokens are stored in httpOnly, Secure, SameSite=Strict, host-only cookies scoped to `/api/auth`.
+4. The page calls `POST /api/auth/session` (with an `X-CMS` header as a CSRF guard) to get a short-lived access token; it refreshes silently before the 8-hour expiry.
+5. The callback URL comes from the request's origin, so `workers.dev`, `localhost:8787` and a future domain all work.
 
-The GitHub App is installed on the content repo only, with **Contents: read and write** permission and nothing else.
+The GitHub App is installed on this repo only: Contents read/write, Checks and Commit statuses read-only.
 
-### Screens
+### Screens (hash routes, so `/admin/` is one static page)
 
-| Screen | What it does |
-| --- | --- |
-| Post list | All posts with title, date, tags, and Draft/Published status; filter and search |
-| Editor | CodeMirror on the left, live preview on the right; frontmatter form in a side panel |
-| Images | Drag, drop or paste; resized in the browser; inserted as Markdown at the cursor |
-| Tags | List tags with counts; rename or merge across all posts in one commit |
-| Deploy status | Shows the latest build result from the commit's GitHub check |
+| Route | Screen | What it does |
+| --- | --- | --- |
+| `#/` | Post list | All posts (drafts included) with status, language, tags and date; search, tag and status filters |
+| `#/new`, `#/edit/<slug>` | Editor | CodeMirror + live preview + metadata panel; Write / Split / Preview views |
+| `#/tags` | Tags | Tags with counts; rename or merge across all posts in one commit |
+| (banner) | Deploy status | After each save: Building… → Live / Failed, from the commit's GitHub checks |
+
+### Editor
+
+- **Toolbar:** Image (also drag/drop/paste), YouTube and Bilibili (paste a link; the CMS writes the embed code). Blocks are inserted with blank lines around them.
+- **Metadata panel:** title, slug (suggested from an English title; fixed after the first save), description, date, updated (+ "Mark updated today"), tags (with suggestions), language (Auto shows the detected one), cover image (pick from the post's images or upload).
+- **Buttons:** drafts show **Save draft** + **Publish**; published posts show **Unpublish** + **Save**. Ctrl/Cmd+S saves.
+- **Counts:** words for English, characters for Chinese.
+- **Delete post:** removes the folder (article and images) in one commit, after a confirm.
 
 ### Saving and publishing
 
-- **Save** = one commit with the article and its new images, using the Git Data API (blobs, tree, commit, update ref). One save, one commit.
+- **Save** = one commit with the article and its new images, using the Git Data API (blobs, tree, commit, update ref). One save, one commit. Uploaded images the post no longer references are not committed.
 - **Publish** = set `draft: false` and save. The commit to `main` triggers the Cloudflare build.
-- **Draft saves** also trigger a build, but drafts are not in the output. Add `[skip ci]` to draft commit messages if build minutes matter (check host support).
-- **Conflicts:** each save sends the file's last known SHA. If the file changed on GitHub, the CMS shows a warning instead of overwriting.
-- **Local autosave:** the open draft is kept in localStorage so a closed tab loses nothing.
+- **Draft saves** also trigger a build, but drafts are not in the output.
+- **Conflicts:** each save sends the file's last known SHA. If the file changed on GitHub, the save stops and says so; the text stays in this browser's autosave.
+- **Local autosave:** unsaved work is kept in localStorage; reopening the post offers Restore / Discard. Leaving with unsaved changes asks first.
 
 ### File format
 
 - New posts are created as `.md`.
-- Inserting an embed (YouTube, Bilibili) switches the post's file to `.mdx`; the save commits the rename and the edit together.
-- If the last embed is removed, the CMS offers to switch back to `.md`.
-- The preview compiles `.md` as Markdown and `.mdx` as MDX, matching the build.
+- A post that uses a component (`<YouTube />`, `<Bilibili />`) is saved as `.mdx`; when the last component is removed it is saved as `.md` again. The rename and the edit are one commit.
+- The preview compiles `.md` as Markdown and `.mdx` as MDX (with GFM), matching the build, so syntax errors show before saving.
 
 ### Preview
 
-The preview compiles MDX in the browser with `@mdx-js/mdx` `evaluate`, using the same remark/rehype plugins and React components as the site, and the site's CSS. It updates as you type (debounced ~300 ms).
+Compiled in the browser with `@mdx-js/mdx` `evaluate`, using the site's embed components and CSS. Relative images resolve to images added this session or to the public raw GitHub URL. Updates ~300 ms after typing stops. The editor bundle (CodeMirror + MDX compiler, ~300 KB gzipped) loads only when a post is opened.
+
+### Security
+
+- `/admin/*` sends a Content Security Policy: scripts only from the site; network calls only to the site and `api.github.com`; images only from the site, `blob:`/`data:`, raw GitHub and YouTube thumbnails; frames only YouTube and Bilibili; no framing of the CMS. `unsafe-eval` is allowed because the live preview compiles MDX.
+- `/admin/` is `noindex`, disallowed in `robots.txt` and left out of the sitemap. The page itself holds no secrets.
+
+### Local development
+
+- `pnpm dev`: no Worker, so the CMS offers a pasted fine-grained token (this tab only) or read-only mode.
+- `pnpm build && pnpm wrangler dev`: full sign-in at `localhost:8787` with a `.dev.vars` secret.
 
 ## Visual design
 
@@ -254,7 +272,7 @@ Not in v1. Options, for when it's needed:
 | Astro or React breaking changes | Pin versions; upgrade on purpose. Content is plain Markdown/MDX and components are plain React, so a move is days, not a rewrite |
 | Preview differs from the live page | Share one MDX plugin config and one component map between site and CMS |
 | Repo grows from images | Resize and convert to WebP before upload; move images to R2 if needed |
-| Token leak | GitHub App limited to one repo, contents only; 8-hour tokens; refresh token in an httpOnly cookie; strict CSP on `/admin` |
+| Token leak | GitHub App limited to one repo, contents only; 8-hour tokens; tokens in httpOnly cookies; CSP on `/admin/` limits where the page can send data |
 | Someone else logs in | The function allows only the owner's GitHub user ID |
 | Hydration errors in animated parts | Keep islands small; avoid `window`, dates and random values during render |
 | Lost edits | localStorage autosave plus SHA conflict check on save |

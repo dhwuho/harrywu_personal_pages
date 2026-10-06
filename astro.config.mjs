@@ -11,5 +11,5 @@ export default defineConfig({
   site,
   // Cloudflare serves pages as /path/; links must match to avoid a redirect.
   trailingSlash: 'always',
-  integrations: [mdx(), react(), sitemap()],
+  integrations: [mdx(), react(), sitemap({ filter: (page) => !page.includes('/admin/') })],
 });

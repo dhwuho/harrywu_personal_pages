@@ -10,9 +10,9 @@ Design: [design.md](design.md)
 | 0 | Planning and design doc | Done |
 | 1 | Site foundation (Astro + React + MDX) | Done (visual check pending) |
 | 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | Done |
-| 3 | CMS login (GitHub App + auth Worker) | Not started |
-| 4 | CMS editor (CodeMirror, Chinese input, preview, save) | Not started |
-| 5 | CMS media and tags | Not started |
+| 3 | CMS login (GitHub App + auth Worker) | Built; waiting on your GitHub App (docs/cms-setup.md) |
+| 4 | CMS editor (CodeMirror, Chinese input, preview, save) | Built; tested read-only |
+| 5 | CMS media and tags | Built; tested read-only |
 | 6 | Design polish and performance | Not started |
 | 7 | Later: search, comments | Not started |
 | 8 | Custom domain and Web Analytics (last; needs a bought domain) | Not started |
@@ -47,29 +47,29 @@ Done when: a push to `main` updates the live `*.workers.dev` site.
 
 Done when: only the owner can log in to `/admin` and see the post list.
 
-- [ ] M3.1 Create the GitHub App (repo-only, Contents read/write)
-- [ ] M3.2 Worker routes `/api/auth/login`, `/callback`, `/refresh`, `/logout`; owner ID check; state check
-- [ ] M3.3 `/admin` React app shell with the shared tokens
-- [ ] M3.4 GitHub API client; post list from the repo (with language and draft status)
+- [ ] M3.1 Create the GitHub App (repo-only, Contents read/write): **you**, following `docs/cms-setup.md`; send Claude the client ID
+- [x] M3.2 Worker routes `/api/auth/login`, `/callback`, `/session` (with refresh), `/logout`; owner ID check; state check; CSRF header (tested locally)
+- [x] M3.3 `/admin/` React app shell with the shared tokens; CSP headers
+- [x] M3.4 GitHub API client; post list from the repo (with language and draft status)
 
 ### Phase 4: CMS editor
 
 Done when: a post can be written in English or Chinese, previewed and published from the browser.
 
-- [ ] M4.1 CodeMirror 6 editor (Markdown, IME tested with pinyin)
-- [ ] M4.2 Frontmatter side panel (title, description, date, tags, cover, language, draft)
-- [ ] M4.3 Live MDX preview with the site's components and styles
-- [ ] M4.4 Chinese support: language auto-detect with override, character count for Chinese, CJK fonts in editor and preview
-- [ ] M4.5 Save as one commit (Git Data API), SHA conflict check, localStorage autosave
-- [ ] M4.6 Publish = `draft: false` + save; new post flow with slug
+- [x] M4.1 CodeMirror 6 editor (Markdown; Chinese text input tested; real pinyin IME to confirm on your machine)
+- [x] M4.2 Frontmatter side panel (title, description, date, tags, cover, language, draft)
+- [x] M4.3 Live MDX preview with the site's components and styles
+- [x] M4.4 Chinese support: language auto-detect with override, character count for Chinese, CJK fonts in editor and preview
+- [x] M4.5 Save as one commit (Git Data API), SHA conflict check, localStorage autosave (commit path needs a real sign-in to confirm)
+- [x] M4.6 Publish = `draft: false` + save; new post flow with slug; delete post
 
 ### Phase 5: CMS media and tags
 
 Done when: a post with images is published without the terminal.
 
-- [ ] M5.1 Image upload: drag/drop/paste, resize to 2000 px, WebP, insert at cursor
-- [ ] M5.2 Tag manager: counts, rename/merge across posts in one commit
-- [ ] M5.3 Deploy status from the commit's GitHub check
+- [x] M5.1 Image upload: drag/drop/paste, resize to 2000 px, WebP, insert at cursor; cover picker/upload
+- [x] M5.2 Tag manager: counts, rename/merge across posts in one commit
+- [x] M5.3 Deploy status from the commit's GitHub check
 
 ### Phase 6: Design polish
 
@@ -103,6 +103,8 @@ So the domain never blocks other work:
 
 ## Next up
 
+- [ ] Create the GitHub App and Cloudflare secret (`docs/cms-setup.md`); send Claude the client ID
+- [ ] First real sign-in: write, save, publish a test post; try pinyin input
 - [ ] Look over the site in the browser (`pnpm dev`) and give design feedback
 - [ ] Fill in real social URLs (`src/config/site.ts`) and the About page (`src/content/pages/about/`) (when ready)
 - [ ] Buy a domain (whenever; phase 8)
@@ -147,3 +149,11 @@ So the domain never blocks other work:
 - Added link-preview (Open Graph) images: a post's `cover` is cropped to 1200×630; a cover on either language version is used for both; pages without one use `public/og-default.png` (made by `scripts/make-og-default.mjs`). Also `og:type`, `og:site_name`, `twitter:card`.
 - Moved everything that needs a domain (custom domain, Web Analytics, GitHub App callback update, `workers.dev` redirect) into a separate **last phase (8)**. Added a no-domain rule so phases 1–7 never wait on it.
 - **Changed: site UI is English only.** Removed `/zh/` pages, the language switch, `src/i18n/` and translation pairs. Posts and the About page can still be written in Chinese: each post's `lang` comes from frontmatter or is detected from the text, and the article is marked `lang="zh-CN"` for Chinese fonts and 1.8 line height. Content is now `src/content/posts/<slug>/index.md(x)` and `src/content/pages/about.md`. One RSS feed. CMS drops language tabs/translate mode; keeps Chinese input, language field and character counts.
+- **CMS built (phases 3–5).** `/admin/` React app (`src/admin/`) + sign-in Worker (`worker/index.ts`).
+  - Sign-in: GitHub App flow, owner ID check (5953718), tokens in httpOnly cookies, silent refresh, CSRF header. Tested locally with `wrangler dev`: redirects, state check, 401/403 paths, session token.
+  - Editor: CodeMirror, live MDX/Markdown preview with the site's components, metadata panel, embeds from pasted links, image resize to 2000 px WebP, cover picker, autosave + restore, Ctrl/Cmd+S, delete post. Auto `.md` ↔ `.mdx`.
+  - Tags page: rename/merge in one commit. Deploy status banner after each save.
+  - Browser walkthrough (headless Chromium) passed in read-only mode, on `astro dev` and through the Worker with CSP on.
+  - CMS-written files (Chinese post with cover, `.mdx`→`.md` switch, tag rename) build on the site.
+  - Not yet tested: real commits to GitHub (needs your GitHub App). Commit code uses the standard Git Data API.
+  - Added `docs/cms-setup.md`, `public/_headers` (CSP for `/admin/*`), `src/lib/lang.ts` (shared helpers).

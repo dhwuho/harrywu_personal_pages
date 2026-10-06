@@ -1,11 +1,10 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { detectLang, tagSlug, type ContentLang } from './lang';
+
+export { htmlLang, tagSlug, type ContentLang } from './lang';
 
 export type PostEntry = CollectionEntry<'posts'>;
 export type PageEntry = CollectionEntry<'pages'>;
-export type ContentLang = 'en' | 'zh';
-
-/** Value for the `lang` attribute, so browsers pick the right fonts and line breaking. */
-export const htmlLang: Record<ContentLang, string> = { en: 'en', zh: 'zh-CN' };
 
 /** "hello-world/index.mdx" → "hello-world". */
 export function postSlug(post: PostEntry): string {
@@ -32,13 +31,6 @@ export function contentLang(entry: PostEntry | PageEntry): ContentLang {
   return entry.data.lang ?? detectLang(`${entry.data.title}\n${entry.body ?? ''}`);
 }
 
-/** Chinese if Chinese characters outnumber English words. */
-export function detectLang(text: string): ContentLang {
-  const cjk = text.match(/[㐀-鿿豈-﫿]/g)?.length ?? 0;
-  const words = text.match(/[A-Za-z]+/g)?.length ?? 0;
-  return cjk > words ? 'zh' : 'en';
-}
-
 /** Tags across posts, most used first. Tags are free-form and shown as typed. */
 export function collectTags(posts: PostEntry[]): { tag: string; slug: string; count: number }[] {
   const counts = new Map<string, { tag: string; count: number }>();
@@ -53,11 +45,6 @@ export function collectTags(posts: PostEntry[]): { tag: string; slug: string; co
   return [...counts.entries()]
     .map(([slug, v]) => ({ slug, ...v }))
     .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
-}
-
-/** URL-safe form of a free-form tag. */
-export function tagSlug(tag: string): string {
-  return tag.trim().toLowerCase().replace(/\s+/g, '-');
 }
 
 /** A single page by file name, e.g. "about" for src/content/pages/about.md. */

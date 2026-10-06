@@ -1,0 +1,19 @@
+---
+import '../../styles/global.css';
+import '../../admin/admin.css';
+import App from '../../admin/App';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>CMS · Harry Wu</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="cms-body">
+    <App client:only="react" />
+  </body>
+</html>
