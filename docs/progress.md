@@ -47,7 +47,7 @@ Done when: a push to `main` updates the live `*.workers.dev` site.
 
 Done when: only the owner can log in to `/admin` and see the post list.
 
-- [ ] M3.1 Create the GitHub App (repo-only, Contents read/write): **you**, following `docs/deploy.md` step 4; send Claude the client ID
+- [x] M3.1 GitHub App created and installed; client ID `Iv23liB5KQiPAssQtfQT` in `wrangler.jsonc`; secret set in Cloudflare
 - [x] M3.2 Worker routes `/api/auth/login`, `/callback`, `/session` (with refresh), `/logout`; owner ID check; state check; CSRF header (tested locally)
 - [x] M3.3 `/admin/` React app shell with the shared tokens; CSP headers
 - [x] M3.4 GitHub API client; post list from the repo (with language and draft status)
@@ -103,7 +103,6 @@ So the domain never blocks other work:
 
 ## Next up
 
-- [ ] Create the GitHub App and Cloudflare secret (`docs/deploy.md` step 4); send Claude the client ID
 - [ ] First real sign-in: write, save, publish a test post; try pinyin input
 - [ ] Look over the site in the browser (`pnpm dev`) and give design feedback
 - [ ] Fill in real social URLs (`src/config/site.ts`) and the About page (`src/content/pages/about/`) (when ready)
@@ -157,3 +156,4 @@ So the domain never blocks other work:
   - CMS-written files (Chinese post with cover, `.mdx`→`.md` switch, tag rename) build on the site.
   - Not yet tested: real commits to GitHub (needs your GitHub App). Commit code uses the standard Git Data API.
   - Added `docs/cms-setup.md`, `public/_headers` (CSP for `/admin/*`), `src/lib/lang.ts` (shared helpers).
+- GitHub App client ID set and deployed. Live check: `/api/auth/login` redirects to GitHub with the right callback; `/api/auth/session` answers "Not signed in" (so the secret is set). Waiting on the first real sign-in (`deploy.md` 4f).
