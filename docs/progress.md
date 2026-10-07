@@ -176,3 +176,4 @@ So the domain never blocks other work:
 - Split again: **Phase 6: Polish** (done) and **Phase 7: Launch** (custom domain and Web Analytics, M7.1–M7.6).
 - Merged `docs/deploy.md` and `docs/cms-setup.md` into **`docs/setup-guide.md`** (deployment, CMS sign-in, local development, troubleshooting, custom domain).
 - **Wrap-up.** Docs brought up to date with the current state. Pausing here; next session: content, then a restyle of the site and CMS.
+- **Cleanup.** Removed the test posts (`src/content/posts/` is empty, kept with `.gitkeep`; build still passes). Stopped tracking `.vscode/` (now git-ignored). README reduced to one line. Checked docs and git history for secrets: none (client ID and owner ID are public).
