@@ -37,6 +37,9 @@ export class GitHub {
   private async request<T>(path: string, init: RequestInit = {}): Promise<T> {
     const token = await this.getToken();
     const res = await fetch(path.startsWith('http') ? path : `${API}${path}`, {
+      // GitHub sends max-age=60; a cached branch head would make the next commit
+      // build on a stale parent ("Update is not a fast forward"). Always ask GitHub.
+      cache: 'no-store',
       ...init,
       headers: {
         Accept: 'application/vnd.github+json',

@@ -157,3 +157,4 @@ So the domain never blocks other work:
   - Added `docs/cms-setup.md`, `public/_headers` (CSP for `/admin/*`), `src/lib/lang.ts` (shared helpers).
 - GitHub App client ID set and deployed. Live check: `/api/auth/login` redirects to GitHub with the right callback; `/api/auth/session` answers "Not signed in" (so the secret is set). Waiting on the first real sign-in (`deploy.md` 4f).
 - **CMS works end to end.** First real sign-in and save from the live site: commit `ffffa04` "Publish: A draft post" (CMS commits use the noreply email). Phases 3–5 done.
+- **Fixed: delete/save failing with "Update is not a fast forward".** GitHub API responses carry `max-age=60`, so the browser served a cached branch head for up to a minute after any commit; the next commit was built on a stale parent. All CMS GitHub requests now use `cache: 'no-store'` (verified in a browser: the second read now reaches GitHub). File contents keep their own cache, keyed by blob SHA.
