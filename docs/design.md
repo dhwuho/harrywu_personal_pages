@@ -1,10 +1,12 @@
 # Personal Website + CMS — Technical Design
 
-As of 2026-10-06 · Online copy: https://claude.ai/code/artifact/ab06c153-46ed-434d-bfc5-cf3352eda85c
+As of 2026-10-06 · **Status:** phases 0–6 done and live at https://harrywu-personal-pages.dh-wuho.workers.dev (site) and `/admin/` (CMS); phase 7 (custom domain) waits on a bought domain. Progress: [progress.md](progress.md) · Setup: [setup-guide.md](setup-guide.md)
+
+An early online draft of this doc (https://claude.ai/code/artifact/ab06c153-46ed-434d-bfc5-cf3352eda85c) is no longer kept in sync; this file is the source of truth.
 
 ## Overview
 
-We will build a personal website with **Astro** and a **self-built React CMS** at `/admin`. Content lives in GitHub, and Cloudflare hosts the site.
+A personal website built with **Astro** and a **self-built React CMS** at `/admin/`. Content lives in GitHub, and Cloudflare hosts the site.
 
 **Goal:** a beautiful personal site for articles, profile and social links, plus a small CMS to write and publish from the browser.
 
@@ -12,7 +14,7 @@ We will build a personal website with **Astro** and a **self-built React CMS** a
 
 - **Static first:** every public page is HTML generated at build time.
 - **No database:** GitHub is the only store for code, articles and images.
-- **Minimal backend:** one small Cloudflare function, only for GitHub login.
+- **Minimal backend:** one small Cloudflare Worker script, only for GitHub sign-in.
 - **Low lock-in:** articles are plain Markdown (MDX only when needed), components are plain React, and Astro stays a thin layer.
 - **Single user:** only the owner can log in to the CMS.
 
@@ -43,8 +45,8 @@ We will build a personal website with **Astro** and a **self-built React CMS** a
 
 - RSS feed and sitemap
 - Open Graph tags and images for link previews
-- Analytics (Cloudflare Web Analytics)
-- Site search (Pagefind), can follow after launch
+- Analytics (Cloudflare Web Analytics): phase 7, with the domain
+- Site search (Pagefind): done
 
 ## Tech stack
 
@@ -59,7 +61,7 @@ We will build a personal website with **Astro** and a **self-built React CMS** a
 | CMS editor | CodeMirror 6 | Solid Markdown source editing, easy to customize |
 | CMS preview | @mdx-js `evaluate` in the browser | Same components as the live site |
 | Auth | GitHub App (user access token) | Access to one repo only, fine-grained permissions |
-| Backend | One Cloudflare function | Swaps the login code for a token; holds the app secret |
+| Backend | One Cloudflare Worker script (`worker/index.ts`) | Swaps the sign-in code for tokens; holds the app secret; handles `/api/*` only |
 | Storage | GitHub repo | Code, articles and images; no database |
 | Hosting | Cloudflare Workers (static assets + Workers Builds) | Free: unlimited static requests, 100k function calls/day, 3,000 build min/month; Cloudflare's path forward over Pages |
 | Domain | Cloudflare Registrar | At-cost pricing, same dashboard |
@@ -111,7 +113,7 @@ src/
   lib/lang.ts                      # language detection, slugs; shared by site + CMS
 worker/                            # Worker script: GitHub App token exchange (/api/auth/*)
 public/                            # favicon, og-default.png, _headers (CMS security headers)
-docs/                              # design, progress, deploy and CMS setup guides
+docs/                              # design, progress, setup guide
 ```
 
 ### Frontmatter
@@ -152,7 +154,7 @@ The site's interface is **English only**: one set of pages, no `/zh/` URLs, no l
 
 ### CMS
 
-- **Chinese input:** CodeMirror 6 supports IME composition; test pinyin input early in phase 4.
+- **Chinese input:** CodeMirror 6 supports IME composition; Chinese typing tested in the CMS.
 - **Language field:** auto-filled from the text; can be overridden in the frontmatter panel.
 - **Counts:** words for English, characters for Chinese.
 - **Slugs:** suggested from an English title; typed by hand (Latin letters) for Chinese titles.
@@ -237,6 +239,8 @@ Minimal and light, for both the site and the CMS. Content first, lots of white s
 
 Colors, fonts and spacing live as CSS variables in one file (`src/styles/tokens.css`), shared by the site and the CMS.
 
+The current look is a first pass. A restyle of the site and the CMS/editor is planned for later; most of it is CSS (`tokens.css`, `global.css`, `src/admin/admin.css`).
+
 ## Comments (later)
 
 Not in v1. Options, for when it's needed:
@@ -275,15 +279,15 @@ Not in v1. Options, for when it's needed:
 | Preview differs from the live page | Share one MDX plugin config and one component map between site and CMS |
 | Repo grows from images | Resize and convert to WebP before upload; move images to R2 if needed |
 | Token leak | GitHub App limited to one repo, contents only; 8-hour tokens; tokens in httpOnly cookies; CSP on `/admin/` limits where the page can send data |
-| Someone else logs in | The function allows only the owner's GitHub user ID |
+| Someone else logs in | The Worker allows only the owner's GitHub user ID; GitHub also blocks writes from users without repo access |
 | Hydration errors in animated parts | Keep islands small; avoid `window`, dates and random values during render |
 | Lost edits | localStorage autosave plus SHA conflict check on save |
 | Public repo shows drafts and history | Accepted. Only finished-enough drafts get committed; use GitHub's noreply email for commits; never commit secrets |
-| Chinese IME glitches in the editor | Test pinyin input in CodeMirror early in phase 4 |
+| Chinese IME glitches in the editor | CodeMirror handles IME composition; Chinese typing tested in the CMS |
 
 ## Build plan
 
-Each phase ends with something live. Dates are open until scope is confirmed.
+Each phase ends with something live. Phases 1–6 are done (2026-10-06); phase 7 waits on a bought domain.
 
 1. **Site foundation:** Astro + React + MDX + TypeScript; base layout, home, about, links page, post list, post page, tag pages.
     - Done when: an English and a Chinese sample post render with a YouTube and a Bilibili embed.
@@ -299,7 +303,7 @@ Each phase ends with something live. Dates are open until scope is confirmed.
 7. **Launch:** once a domain is bought, add it to the Worker, update `SITE_URL` and the GitHub App callback, redirect `workers.dev`, turn on automatic Web Analytics.
     - Nothing before this phase depends on a domain: the address comes only from `SITE_URL`, login callbacks use the request's origin, and cookies are host-only.
 
-Not scheduled, done when wanted: comments (see Comments), a restyle of the CMS and editor.
+Not scheduled, done when wanted: comments (see Comments); a restyle of the site, the CMS and the editor; moving the CMS to a less obvious path than `/admin/` (five places to change; see progress.md); dark mode.
 
 ## Open questions
 

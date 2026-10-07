@@ -8,7 +8,7 @@ Design: [design.md](design.md) · Setup and deployment: [setup-guide.md](setup-g
 | # | Phase | Status |
 | --- | --- | --- |
 | 0 | Planning and design doc | Done |
-| 1 | Site foundation (Astro + React + MDX) | Done (visual check pending) |
+| 1 | Site foundation (Astro + React + MDX) | Done |
 | 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | Done |
 | 3 | CMS login (GitHub App + auth Worker) | Done |
 | 4 | CMS editor (CodeMirror, Chinese input, preview, save) | Done |
@@ -93,8 +93,10 @@ Starts only after the domain is bought. Nothing else waits on it.
 
 ### When you want it (not scheduled)
 
+- Restyle the site, the CMS and the editor (current look is a functional first pass). Mostly CSS: `src/styles/tokens.css`, `src/styles/global.css`, `src/admin/admin.css`.
 - Comments: giscus first (options in design.md → Comments).
-- Restyle the CMS and the editor (current look is functional; to be redesigned later).
+- Move the CMS to a less obvious path than `/admin/`. Change: `src/pages/admin/` folder name, `public/_headers`, the redirect in `worker/index.ts`, the sitemap filter in `astro.config.mjs`, and remove the `/admin` line from `src/pages/robots.txt.ts`. This hides the page; the GitHub sign-in is what protects it.
+- Dark mode.
 
 ### No-domain rule (phases 1–6)
 
@@ -103,11 +105,19 @@ So the domain never blocks other work:
 - CMS login builds its callback URL from the current request's origin, so it works on `workers.dev`, `localhost` and the future domain.
 - Auth cookies are host-only (no `Domain=` attribute), so they work on any host.
 
+## Current status (2026-10-06)
+
+- **Live:** https://harrywu-personal-pages.dh-wuho.workers.dev · CMS: `/admin/` (sign in with GitHub; only dhwuho).
+- **Done:** phases 0–6 (site, deploy, CMS sign-in/editor/media/tags, polish and search). Lighthouse mobile 100 in all categories.
+- **Content:** two sample posts (`hello-world`, `first-video`); placeholder About page and social links.
+
 ## Next up
 
-- [ ] Look over the site in the browser (`pnpm dev`) and give design feedback
-- [ ] Fill in real social URLs (`src/config/site.ts`) and the About page (`src/content/pages/about/`) (when ready)
-- [ ] Buy a domain (whenever; phase 7)
+- [ ] Replace the placeholder social URLs (`src/config/site.ts`)
+- [ ] Write the About page (`src/content/pages/about.md`, editable in a text editor; the CMS edits posts only)
+- [ ] Replace the sample posts with real ones (or delete them in the CMS)
+- [ ] Restyle the site and the CMS/editor (when there's time)
+- [ ] Buy a domain, then phase 7
 
 ## Log
 
@@ -165,3 +175,4 @@ So the domain never blocks other work:
 - Combined phases 6 and 7 into **Phase 6: Polish and launch**: polish (M6.1–M6.4, done) and launch (custom domain and Web Analytics, M6.5–M6.10, waiting on the domain).
 - Split again: **Phase 6: Polish** (done) and **Phase 7: Launch** (custom domain and Web Analytics, M7.1–M7.6).
 - Merged `docs/deploy.md` and `docs/cms-setup.md` into **`docs/setup-guide.md`** (deployment, CMS sign-in, local development, troubleshooting, custom domain).
+- **Wrap-up.** Docs brought up to date with the current state. Pausing here; next session: content, then a restyle of the site and CMS.

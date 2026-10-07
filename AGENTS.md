@@ -1,7 +1,8 @@
 ## Project
 
-Personal website (Astro, static) + self-built React CMS at `/admin` (later phases).
-Design: `docs/design.md`. Milestones and log: `docs/progress.md` — update it after each work session.
+Personal website (Astro, static) + self-built React CMS at `/admin/`. Live: https://harrywu-personal-pages.dh-wuho.workers.dev
+Design: `docs/design.md`. Status, milestones and log: `docs/progress.md` (update it after each work session). Setup and deployment: `docs/setup-guide.md`.
+Every push to `main` deploys via Cloudflare Workers Builds; commit as the GitHub noreply email (set in this repo's git config).
 
 ## Conventions
 
@@ -28,4 +29,4 @@ Full documentation: https://docs.astro.build
 - [Routing](https://docs.astro.build/en/guides/routing/)
 - [Framework components](https://docs.astro.build/en/guides/framework-components/)
 - [Content collections](https://docs.astro.build/en/guides/content-collections/)
-- [Internationalization](https://docs.astro.build/en/guides/internationalization/)
+- [Styling](https://docs.astro.build/en/guides/styling/)
