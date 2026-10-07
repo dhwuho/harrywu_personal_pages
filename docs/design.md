@@ -64,7 +64,9 @@ We will build a personal website with **Astro** and a **self-built React CMS** a
 | Hosting | Cloudflare Workers (static assets + Workers Builds) | Free: unlimited static requests, 100k function calls/day, 3,000 build min/month; Cloudflare's path forward over Pages |
 | Domain | Cloudflare Registrar | At-cost pricing, same dashboard |
 | Media | YouTube, Bilibili iframes; Instagram links | Instagram's embed API needs a Meta token |
-| Analytics | Cloudflare Web Analytics | Free, no cookies |
+| Analytics | Cloudflare Web Analytics (phase 7, with the domain) | Free, no cookies |
+| Search | Pagefind (static index built after `astro build`) | No server; Chinese word splitting; ~zero cost |
+| Video embeds | Click-to-play placeholders (`srcdoc` iframe) | Player JS (~1 MB) loads only on click |
 | Package manager | pnpm | Fast; already installed |
 
 ## Architecture
@@ -230,7 +232,7 @@ Minimal and light, for both the site and the CMS. Content first, lots of white s
 | Fonts | System sans with CJK fallbacks (PingFang SC, Microsoft YaHei, Noto Sans SC); monospace for code and the editor |
 | Reading width | ~680 px for articles |
 | Body text | 17 px, line height 1.75 (1.8 for Chinese) |
-| Motion | Subtle: fade/slide-in on scroll, hover underlines, page transitions (Astro View Transitions); off when `prefers-reduced-motion` |
+| Motion | CSS only (no JS): cross-page fade (View Transitions), content settle-in, scroll fade-in, hover underlines; off when `prefers-reduced-motion` |
 | CMS | Same tokens; quiet, distraction-free editor; preview uses the site's exact styles |
 
 Colors, fonts and spacing live as CSS variables in one file (`src/styles/tokens.css`), shared by the site and the CMS.
@@ -293,10 +295,11 @@ Each phase ends with something live. Dates are open until scope is confirmed.
     - Done when: a post can be written, previewed and published from the browser.
 5. **CMS media and tags:** image upload with resize, tag rename/merge, deploy status.
     - Done when: a post with images is published without touching the terminal.
-6. **Design polish:** animations, typography, performance pass (Lighthouse 95+).
-7. **Later:** Pagefind search, comments (see Comments).
-8. **Custom domain and Web Analytics (last):** add the domain to the Worker, update `SITE_URL` and the GitHub App callback, redirect `workers.dev`, turn on automatic Web Analytics.
+6. **Design polish, performance and search:** animations, typography, performance pass (Lighthouse 95+), Pagefind search.
+7. **Custom domain and Web Analytics (last):** add the domain to the Worker, update `SITE_URL` and the GitHub App callback, redirect `workers.dev`, turn on automatic Web Analytics.
     - Nothing before this phase depends on a domain: the address comes only from `SITE_URL`, login callbacks use the request's origin, and cookies are host-only.
+
+Not scheduled, done when wanted: comments (see Comments), a restyle of the CMS and editor.
 
 ## Open questions
 

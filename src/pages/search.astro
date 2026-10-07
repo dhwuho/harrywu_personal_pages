@@ -1,0 +1,51 @@
+---
+import Base from '../layouts/Base.astro';
+// Search runs fully in the browser with the static Pagefind index built into /pagefind/.
+// The index exists only after `pnpm build`, so search is empty under `pnpm dev`.
+---
+
+<Base title="Search" description="Search posts.">
+  <h1 class="page-title">Search</h1>
+  <p class="page-lead">Search posts in English or Chinese.</p>
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  <div id="search" data-pagefind-ignore></div>
+  <noscript><p class="muted">Search needs JavaScript.</p></noscript>
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
+  <script is:inline>
+    (function () {
+      var el = document.getElementById('search');
+      if (typeof PagefindUI === 'undefined') {
+        el.innerHTML = '<p class="muted">Search is available on the built site (run <code>pnpm build</code>).</p>';
+        return;
+      }
+      var ui = new PagefindUI({ element: el, showSubResults: true, showImages: false, resetStyles: false, autofocus: true });
+      var q = new URLSearchParams(location.search).get('q');
+      if (q) ui.triggerSearch(q);
+    })();
+  </script>
+</Base>
+
+<style is:global>
+  /* Pagefind UI in the site's look. */
+  #search {
+    --pagefind-ui-scale: 0.9;
+    --pagefind-ui-primary: var(--color-accent);
+    --pagefind-ui-text: var(--color-text);
+    --pagefind-ui-background: var(--color-bg);
+    --pagefind-ui-border: var(--color-border);
+    --pagefind-ui-tag: var(--color-surface);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 8px;
+    --pagefind-ui-font: var(--font-sans);
+  }
+  #search .pagefind-ui__result-link {
+    color: var(--color-text);
+  }
+  #search .pagefind-ui__result-link:hover {
+    color: var(--color-accent);
+  }
+  #search mark {
+    background: var(--color-accent-soft);
+    color: inherit;
+  }
+</style>

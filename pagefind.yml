@@ -1,0 +1,6 @@
+# Site search index, built after `astro build` (see package.json "build").
+site: dist
+# One index for the whole site with Chinese word segmentation, so English pages can
+# search Chinese posts too. (Per-language indexes would hide Chinese posts from the
+# English UI.) Trade-off: no English stemming ("running" won't match "run").
+force_language: zh

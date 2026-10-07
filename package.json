@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && pagefind",
     "preview": "astro preview",
     "check": "astro check && tsc -p worker",
     "astro": "astro",
@@ -39,6 +39,7 @@
     "@cloudflare/workers-types": "^5.20261006.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "pagefind": "^1.5.2",
     "typescript": "^6.0.3",
     "wrangler": "^4.148.0"
   },

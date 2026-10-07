@@ -7,6 +7,7 @@ const nav = [
   { label: 'Posts', href: '/posts/' },
   { label: 'About', href: '/about/' },
   { label: 'Links', href: '/links/' },
+  { label: 'Search', href: '/search/' },
 ];
 const isActive = (href: string) =>
   href === '/' ? path === '/' : path.startsWith(href) || (href === '/posts/' && path.startsWith('/tags/'));
@@ -46,8 +47,25 @@ const isActive = (href: string) =>
     font-size: var(--text-sm);
   }
   nav a {
+    position: relative;
     color: var(--color-muted);
     text-decoration: none;
+  }
+  /* Small accent bar under the current section. */
+  nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 1px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transition: transform 200ms ease;
+  }
+  nav a[aria-current='page']::after,
+  nav a:hover::after {
+    transform: scaleX(1);
   }
   nav a:hover,
   nav a[aria-current='page'] {

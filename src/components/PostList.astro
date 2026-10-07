@@ -14,9 +14,9 @@ const { posts } = Astro.props;
   ) : (
     <ul class="post-list">
       {posts.map((post) => (
-        <li>
+        <li class="reveal">
           <a href={`/posts/${postSlug(post)}/`}>
-            <span lang={htmlLang[contentLang(post)]}>{post.data.title}</span>
+            <span class="title" lang={htmlLang[contentLang(post)]}>{post.data.title}</span>
             {post.data.draft && <span class="tag">Draft</span>}
           </a>
           <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
@@ -45,6 +45,14 @@ const { posts } = Astro.props;
     display: flex;
     gap: var(--space-2);
     align-items: baseline;
+  }
+  /* Underline grows in from the left on hover. */
+  .title {
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    transition: background-size 250ms ease, color var(--transition);
+  }
+  a:hover .title {
+    background-size: 100% 1px;
   }
   time {
     flex-shrink: 0;

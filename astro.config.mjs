@@ -11,5 +11,7 @@ export default defineConfig({
   site,
   // Cloudflare serves pages as /path/; links must match to avoid a redirect.
   trailingSlash: 'always',
+  // Light code blocks to match the site (Astro's default theme is dark).
+  markdown: { shikiConfig: { theme: 'github-light' } },
   integrations: [mdx(), react(), sitemap({ filter: (page) => !page.includes('/admin/') })],
 });

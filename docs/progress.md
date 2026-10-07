@@ -13,9 +13,8 @@ Design: [design.md](design.md)
 | 3 | CMS login (GitHub App + auth Worker) | Done |
 | 4 | CMS editor (CodeMirror, Chinese input, preview, save) | Done |
 | 5 | CMS media and tags | Done |
-| 6 | Design polish and performance | Not started |
-| 7 | Later: search, comments | Not started |
-| 8 | Custom domain and Web Analytics (last; needs a bought domain) | Not started |
+| 6 | Design polish, performance and search | Done |
+| 7 | Custom domain and Web Analytics (last; needs a bought domain) | Not started |
 
 ## Milestones
 
@@ -71,30 +70,33 @@ Done when: a post with images is published without the terminal.
 - [x] M5.2 Tag manager: counts, rename/merge across posts in one commit
 - [x] M5.3 Deploy status from the commit's GitHub check
 
-### Phase 6: Design polish
+### Phase 6: Design polish, performance and search
 
-- [ ] M6.1 Animations: scroll fade-in, hover states, View Transitions; reduced-motion respected
-- [ ] M6.2 Typography pass for English and Chinese posts
-- [ ] M6.3 Lighthouse 95+ on mobile; image and font audit
+Done when: pages animate subtly (and not at all with reduced motion), English and Chinese posts read well, Lighthouse mobile scores 95+, and search finds English and Chinese posts.
 
-### Phase 7: Later
+- [x] M6.1 Animations (CSS only, no JS): page fade between pages (View Transitions), content settle-in, scroll fade-in for list items/images/videos, hover underline and arrow, nav accent bar; all off with reduced motion
+- [x] M6.2 Typography: balanced headings, pretty wrapping, lists, tables, code (light theme), footnotes; Chinese: strict line breaks, Chinese–Latin spacing, no fake italics
+- [x] M6.3 Lighthouse mobile: 100 / 100 / 100 / 100 on home, posts and search. Videos are click-to-play placeholders (player loads on click); system fonts only; images optimized by Astro
+- [x] M6.4 Search page `/search/` (Pagefind): one index with Chinese word splitting; indexes posts and About; `?q=` prefill
 
-- [ ] M7.1 Site search (Pagefind), including Chinese posts
-- [ ] M7.2 Comments (giscus first; see design.md)
-
-### Phase 8: Custom domain and Web Analytics (last)
+### Phase 7: Custom domain and Web Analytics (last)
 
 Done when: the site is served on the custom domain, old `workers.dev` links still work, and Web Analytics shows visits.
-Starts only after the domain is bought. Nothing in phases 1–7 waits on it.
+Starts only after the domain is bought. Nothing in phases 1–6 waits on it.
 
-- [ ] M8.1 Buy the domain (Cloudflare Registrar, or elsewhere with nameservers moved to Cloudflare)
-- [ ] M8.2 Worker → Settings → Domains & Routes → add the custom domain
-- [ ] M8.3 Update the `SITE_URL` build variable; rebuild; check canonical, RSS, sitemap, OG image URLs
-- [ ] M8.4 GitHub App: add the new callback URL (keep the `workers.dev` one until the switch is verified)
-- [ ] M8.5 Redirect `workers.dev` to the custom domain (or turn its route off) so search engines see one address
-- [ ] M8.6 Web Analytics: automatic setup on the domain (no code)
+- [ ] M7.1 Buy the domain (Cloudflare Registrar, or elsewhere with nameservers moved to Cloudflare)
+- [ ] M7.2 Worker → Settings → Domains & Routes → add the custom domain
+- [ ] M7.3 Update the `SITE_URL` build variable; rebuild; check canonical, RSS, sitemap, OG image URLs
+- [ ] M7.4 GitHub App: add the new callback URL (keep the `workers.dev` one until the switch is verified)
+- [ ] M7.5 Redirect `workers.dev` to the custom domain (or turn its route off) so search engines see one address
+- [ ] M7.6 Web Analytics: automatic setup on the domain (no code)
 
-### No-domain rule (phases 1–7)
+### When you want it (not scheduled)
+
+- Comments: giscus first (options in design.md → Comments).
+- Restyle the CMS and the editor (current look is functional; to be redesigned later).
+
+### No-domain rule (phases 1–6)
 
 So the domain never blocks other work:
 - The site address comes only from the `SITE_URL` build variable. No domain is written in code.
@@ -105,7 +107,7 @@ So the domain never blocks other work:
 
 - [ ] Look over the site in the browser (`pnpm dev`) and give design feedback
 - [ ] Fill in real social URLs (`src/config/site.ts`) and the About page (`src/content/pages/about/`) (when ready)
-- [ ] Buy a domain (whenever; phase 8)
+- [ ] Buy a domain (whenever; phase 7)
 
 ## Log
 
@@ -158,3 +160,5 @@ So the domain never blocks other work:
 - GitHub App client ID set and deployed. Live check: `/api/auth/login` redirects to GitHub with the right callback; `/api/auth/session` answers "Not signed in" (so the secret is set). Waiting on the first real sign-in (`deploy.md` 4f).
 - **CMS works end to end.** First real sign-in and save from the live site: commit `ffffa04` "Publish: A draft post" (CMS commits use the noreply email). Phases 3–5 done.
 - **Fixed: delete/save failing with "Update is not a fast forward".** GitHub API responses carry `max-age=60`, so the browser served a cached branch head for up to a minute after any commit; the next commit was built on a stale parent. All CMS GitHub requests now use `cache: 'no-store'` (verified in a browser: the second read now reaches GitHub). File contents keep their own cache, keyed by blob SHA.
+- Merged phases 6 and 7 into **Phase 6: design polish, performance and search**. Comments moved to "When you want it", with a CMS/editor restyle. The domain phase is now **phase 7**.
+- **Phase 6 done.** CSS-only motion and typography pass; light code theme (`github-light`); click-to-play video placeholders (`srcdoc`, no page JS); Pagefind search at `/search/` (build runs `astro build && pagefind`; `pagefind.yml` forces one `zh`-segmented index so English pages find Chinese posts; no English stemming). Lighthouse mobile 100 in all categories on `/`, both posts and `/search/`. CMS preview re-tested with the new embeds under CSP.

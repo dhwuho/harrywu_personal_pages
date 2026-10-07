@@ -10,7 +10,7 @@ const title = page?.data.title ?? 'About';
 ---
 
 <Base title={title} description={page?.data.description}>
-  <div lang={page ? htmlLang[contentLang(page)] : undefined}>
+  <div lang={page ? htmlLang[contentLang(page)] : undefined} data-pagefind-body>
     <h1 class="page-title">{title}</h1>
     <div class="prose">
       {Content && <Content components={mdxComponents} />}

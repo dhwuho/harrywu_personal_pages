@@ -8,6 +8,7 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -18,23 +19,27 @@ body {
   font-size: var(--text-base);
   line-height: var(--leading);
   -webkit-font-smoothing: antialiased;
+  font-kerning: normal;
 }
 
-/* Chinese text (posts or pages with lang="zh-CN") gets a bit more line spacing. */
-:lang(zh) {
-  line-height: 1.8;
+h1,
+h2,
+h3 {
+  line-height: var(--leading-tight);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
 }
-:lang(zh) h1,
-:lang(zh) h2,
-:lang(zh) h3 {
-  line-height: 1.4;
-  letter-spacing: 0;
+p,
+li {
+  text-wrap: pretty;
 }
 
 a {
   color: inherit;
   text-decoration-color: var(--color-border);
-  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
   transition: color var(--transition), text-decoration-color var(--transition);
 }
 a:hover {
@@ -46,13 +51,8 @@ a:hover {
   outline-offset: 2px;
   border-radius: 2px;
 }
-
-h1,
-h2,
-h3 {
-  line-height: var(--leading-tight);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+::selection {
+  background: var(--color-accent-soft);
 }
 
 img,
@@ -90,43 +90,73 @@ iframe {
   color: var(--color-muted);
   text-decoration: none;
   line-height: 1.8;
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
 }
 a.tag:hover,
 .tag[aria-current='page'] {
   border-color: var(--color-accent);
   color: var(--color-accent);
+  background: var(--color-accent-soft);
 }
 
-/* Article body */
+/* ---------- Article body ---------- */
+
 .prose {
   max-width: var(--measure);
+  overflow-wrap: break-word;
+}
+.prose > :first-child {
+  margin-top: 0;
 }
 .prose h2 {
-  font-size: var(--text-lg);
+  font-size: 1.375rem;
   margin: var(--space-12) 0 var(--space-4);
 }
 .prose h3 {
-  font-size: var(--text-base);
-  margin: var(--space-8) 0 var(--space-2);
+  font-size: 1.125rem;
+  margin: var(--space-8) 0 var(--space-3);
 }
 .prose p,
 .prose ul,
-.prose ol {
+.prose ol,
+.prose blockquote,
+.prose pre,
+.prose table {
   margin: 0 0 var(--space-6);
 }
+.prose ul,
+.prose ol {
+  padding-left: 1.4em;
+}
+.prose li + li {
+  margin-top: var(--space-1);
+}
+.prose li::marker {
+  color: var(--color-muted);
+}
+.prose a {
+  text-decoration-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+.prose strong {
+  font-weight: 600;
+}
 .prose img {
+  display: block;
   height: auto;
+  margin-inline: auto;
   border-radius: var(--radius);
 }
 .prose blockquote {
-  margin: 0 0 var(--space-6);
   padding-left: var(--space-4);
   border-left: 3px solid var(--color-border);
   color: var(--color-muted);
 }
+.prose blockquote > :last-child {
+  margin-bottom: 0;
+}
 .prose code {
   font-family: var(--font-mono);
-  font-size: 0.9em;
+  font-size: 0.875em;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 4px;
@@ -136,22 +166,124 @@ a.tag:hover,
   padding: var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
+  background: var(--color-surface) !important;
   overflow-x: auto;
   font-size: var(--text-sm);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 .prose pre code {
   background: none;
   border: 0;
   padding: 0;
+  font-size: inherit;
+}
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  display: block;
+  overflow-x: auto;
+}
+.prose th,
+.prose td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+.prose th {
+  font-weight: 600;
 }
 .prose hr {
   border: 0;
   border-top: 1px solid var(--color-border);
   margin: var(--space-12) 0;
 }
+.prose kbd {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  padding: 0.1em 0.4em;
+  border: 1px solid var(--color-border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+}
+.prose .footnotes {
+  margin-top: var(--space-12);
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+/* ---------- Chinese text ---------- */
+/* Posts or pages marked lang="zh-CN": more line spacing, strict line breaking,
+   automatic space between Chinese and Latin text where the browser supports it. */
+
+:lang(zh) {
+  line-height: 1.8;
+  line-break: strict;
+  text-autospace: normal;
+  text-spacing-trim: normal;
+}
+:lang(zh) h1,
+:lang(zh) h2,
+:lang(zh) h3 {
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+/* Chinese has no italics; emphasize with weight instead. */
+:lang(zh) em {
+  font-style: normal;
+  font-weight: 600;
+}
+.prose:lang(zh) p,
+:lang(zh) .prose p {
+  letter-spacing: 0.01em;
+}
+
+/* ---------- Motion (CSS only, no JavaScript) ---------- */
+
+/* Soft cross-fade between pages in browsers with cross-document View Transitions. */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+  animation-timing-function: ease;
+}
+.site-header {
+  view-transition-name: site-header;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Page content settles in on load. */
+main {
+  animation: rise 320ms ease-out both;
+}
+
+/* Items fade up as they scroll into view, where scroll-driven animations are supported. */
+@supports (animation-timeline: view()) {
+  .reveal,
+  .prose img,
+  .prose .embed {
+    animation: rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
   *,
   *::before,
   *::after {

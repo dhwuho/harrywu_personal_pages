@@ -45,6 +45,6 @@ Summary of what the app needs:
   - **Continue read-only**: browse and edit without saving.
 - Full sign-in locally: `pnpm build && pnpm wrangler dev` → http://localhost:8787/admin/, with the localhost callback URL added to the app and a `.dev.vars` file (git-ignored) containing `GITHUB_CLIENT_SECRET=...`.
 
-## When the custom domain arrives (phase 8)
+## When the custom domain arrives (phase 7)
 
 Add `https://<domain>/api/auth/callback` as another callback URL in the app. Nothing else changes: the Worker builds the callback from whatever address you're on.

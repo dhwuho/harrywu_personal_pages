@@ -14,10 +14,11 @@ const { title, description, date, updated, tags, cover, draft } = post.data;
 ---
 
 <Base title={title} description={description} image={cover} type="article">
-  <article lang={htmlLang[contentLang(post)]}>
+  <article lang={htmlLang[contentLang(post)]} data-pagefind-body>
     <header class="post-header">
       <h1>{title}</h1>
-      <p class="meta" lang="en">
+      <span hidden data-pagefind-meta={`date:${formatDate(date)}`}></span>
+      <p class="meta" lang="en" data-pagefind-ignore>
         <time datetime={date.toISOString()}>{formatDate(date)}</time>
         {updated && <span>· Updated {formatDate(updated)}</span>}
         {draft && <span class="tag">Draft</span>}
@@ -26,7 +27,7 @@ const { title, description, date, updated, tags, cover, draft } = post.data;
         tags.length > 0 && (
           <p class="tags">
             {tags.map((tag) => (
-              <a class="tag" href={`/tags/${tagSlug(tag)}/`}>
+              <a class="tag" href={`/tags/${tagSlug(tag)}/`} data-pagefind-filter="tag">
                 {tag}
               </a>
             ))}
