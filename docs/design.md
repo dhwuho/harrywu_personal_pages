@@ -64,7 +64,7 @@ We will build a personal website with **Astro** and a **self-built React CMS** a
 | Hosting | Cloudflare Workers (static assets + Workers Builds) | Free: unlimited static requests, 100k function calls/day, 3,000 build min/month; Cloudflare's path forward over Pages |
 | Domain | Cloudflare Registrar | At-cost pricing, same dashboard |
 | Media | YouTube, Bilibili iframes; Instagram links | Instagram's embed API needs a Meta token |
-| Analytics | Cloudflare Web Analytics (phase 6 launch, with the domain) | Free, no cookies |
+| Analytics | Cloudflare Web Analytics (phase 7, with the domain) | Free, no cookies |
 | Search | Pagefind (static index built after `astro build`) | No server; Chinese word splitting; ~zero cost |
 | Video embeds | Click-to-play placeholders (`srcdoc` iframe) | Player JS (~1 MB) loads only on click |
 | Package manager | pnpm | Fast; already installed |
@@ -295,8 +295,9 @@ Each phase ends with something live. Dates are open until scope is confirmed.
     - Done when: a post can be written, previewed and published from the browser.
 5. **CMS media and tags:** image upload with resize, tag rename/merge, deploy status.
     - Done when: a post with images is published without touching the terminal.
-6. **Polish and launch:** animations, typography, performance pass (Lighthouse 95+), Pagefind search; then, once a domain is bought, add it to the Worker, update `SITE_URL` and the GitHub App callback, redirect `workers.dev`, turn on automatic Web Analytics.
-    - Nothing except the launch steps depends on a domain: the address comes only from `SITE_URL`, login callbacks use the request's origin, and cookies are host-only.
+6. **Polish:** animations, typography, performance pass (Lighthouse 95+), Pagefind search.
+7. **Launch:** once a domain is bought, add it to the Worker, update `SITE_URL` and the GitHub App callback, redirect `workers.dev`, turn on automatic Web Analytics.
+    - Nothing before this phase depends on a domain: the address comes only from `SITE_URL`, login callbacks use the request's origin, and cookies are host-only.
 
 Not scheduled, done when wanted: comments (see Comments), a restyle of the CMS and editor.
 
