@@ -10,9 +10,9 @@ Design: [design.md](design.md)
 | 0 | Planning and design doc | Done |
 | 1 | Site foundation (Astro + React + MDX) | Done (visual check pending) |
 | 2 | Deploy to Cloudflare Workers, RSS, sitemap, OG | Done |
-| 3 | CMS login (GitHub App + auth Worker) | Built; waiting on your GitHub App (docs/cms-setup.md) |
-| 4 | CMS editor (CodeMirror, Chinese input, preview, save) | Built; tested read-only |
-| 5 | CMS media and tags | Built; tested read-only |
+| 3 | CMS login (GitHub App + auth Worker) | Done |
+| 4 | CMS editor (CodeMirror, Chinese input, preview, save) | Done |
+| 5 | CMS media and tags | Done |
 | 6 | Design polish and performance | Not started |
 | 7 | Later: search, comments | Not started |
 | 8 | Custom domain and Web Analytics (last; needs a bought domain) | Not started |
@@ -103,7 +103,6 @@ So the domain never blocks other work:
 
 ## Next up
 
-- [ ] First real sign-in: write, save, publish a test post; try pinyin input
 - [ ] Look over the site in the browser (`pnpm dev`) and give design feedback
 - [ ] Fill in real social URLs (`src/config/site.ts`) and the About page (`src/content/pages/about/`) (when ready)
 - [ ] Buy a domain (whenever; phase 8)
@@ -157,3 +156,4 @@ So the domain never blocks other work:
   - Not yet tested: real commits to GitHub (needs your GitHub App). Commit code uses the standard Git Data API.
   - Added `docs/cms-setup.md`, `public/_headers` (CSP for `/admin/*`), `src/lib/lang.ts` (shared helpers).
 - GitHub App client ID set and deployed. Live check: `/api/auth/login` redirects to GitHub with the right callback; `/api/auth/session` answers "Not signed in" (so the secret is set). Waiting on the first real sign-in (`deploy.md` 4f).
+- **CMS works end to end.** First real sign-in and save from the live site: commit `ffffa04` "Publish: A draft post" (CMS commits use the noreply email). Phases 3–5 done.
