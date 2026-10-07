@@ -11,7 +11,7 @@ Design: `docs/design.md`. Milestones and log: `docs/progress.md` — update it a
 - Styles: tokens in `src/styles/tokens.css`; minimal, light theme only. Motion is CSS only; public pages ship no JS (except `/search/` and `/admin/`).
 - TypeScript stays on v6 until `astro check` supports v7.
 - CMS: React app in `src/admin/` (hash routes), mounted by `src/pages/admin/index.astro` with `client:only`. It reads/writes the repo through the GitHub API (`src/admin/github.ts`); one save = one commit.
-- Sign-in Worker: `worker/index.ts` handles `/api/*` only (`run_worker_first`). Public vars in `wrangler.jsonc`; the secret `GITHUB_CLIENT_SECRET` lives in the Cloudflare dashboard. Setup: `docs/cms-setup.md`.
+- Sign-in Worker: `worker/index.ts` handles `/api/*` only (`run_worker_first`). Public vars in `wrangler.jsonc`; the secret `GITHUB_CLIENT_SECRET` lives in the Cloudflare dashboard. Setup: `docs/setup-guide.md`.
 - Code shared by site and CMS must not import `astro:*` (put it in `src/lib/lang.ts` or `src/components/`).
 
 ## Commands

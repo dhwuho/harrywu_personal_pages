@@ -1,8 +1,8 @@
-# Deploy to Cloudflare Workers
+# Setup and Deployment Guide
 
-How the site goes live. After setup, every push to `main` rebuilds and deploys automatically.
+How the site goes live on Cloudflare, how CMS sign-in works, and the one-time setup for both. After setup, every push to `main` (or save in the CMS) rebuilds and deploys automatically.
 
-## How it works
+## How deployment works
 
 1. You push to `main` on GitHub, or save in the CMS at `/admin/` (each save is a commit to `main`).
 2. Cloudflare **Workers Builds** sees the push, runs `pnpm build`, then `npx wrangler deploy`.
@@ -11,7 +11,18 @@ How the site goes live. After setup, every push to `main` rebuilds and deploys a
 
 Already in the repo: `wrangler.jsonc`, `.node-version` (Node 24), `packageManager` in `package.json` (pnpm).
 
-## One-time setup (about 10 minutes)
+## How CMS sign-in works
+
+1. `/admin/` → **Sign in with GitHub** → the Worker (`worker/index.ts`) sends you to GitHub.
+2. You approve → GitHub sends you back to `/api/auth/callback`.
+3. The Worker swaps the code for tokens (using the app secret), checks your GitHub user ID is `OWNER_ID` (5953718 = dhwuho), and stores the tokens in httpOnly cookies.
+4. The CMS page asks `/api/auth/session` for a short-lived access token and calls the GitHub API directly. Tokens last 8 hours and refresh silently.
+
+Anyone else who tries gets "Not allowed". The token can only reach this repo, and only its contents.
+
+## One-time setup (about 20 minutes)
+
+Steps 1–4 are **already done** for this site (2026-10-06). They stay here for reference, e.g. to rebuild the setup on a new account.
 
 Dashboard menu names can shift a little; look for the closest match.
 
@@ -148,7 +159,7 @@ Paste the **Client ID** from 4b into the chat. It's public, so this is safe. Cla
    5. Open https://harrywu-personal-pages.dh-wuho.workers.dev/posts/test-post/ and check the post and image.
    6. Back in the CMS, open the post → **Delete post** to clean up.
 
-If anything fails, copy the error text (or take a screenshot) and send it to Claude. Common problems are in `docs/cms-setup.md` → Troubleshooting.
+If anything fails, copy the error text (or take a screenshot) and send it to Claude. Common problems: see **Troubleshooting CMS sign-in** below.
 
 #### Later changes to the GitHub App
 
@@ -178,6 +189,26 @@ If anything fails, copy the error text (or take a screenshot) and send it to Cla
 | Build minutes | 3,000 / month, 1 build at a time |
 | Files per deploy | 20,000, max 25 MiB each |
 
+## Local development
+
+- `pnpm dev` → http://localhost:4321/admin/ has no Worker, so the CMS offers:
+  - **Use token**: paste a fine-grained personal access token (GitHub → Settings → Developer settings → Fine-grained tokens; repo `harrywu_personal_pages`; Contents read and write). Kept in this tab only.
+  - **Continue read-only**: browse and edit without saving.
+- Full sign-in locally: `pnpm build && pnpm wrangler dev` → http://localhost:8787/admin/, with the localhost callback URL added to the app and a `.dev.vars` file (git-ignored) containing `GITHUB_CLIENT_SECRET=...`.
+
+## Troubleshooting CMS sign-in
+
+| Message | Fix |
+| --- | --- |
+| "Sign-in is not configured yet" | Client ID not in `wrangler.jsonc`, or the secret isn't set (step 4d) |
+| GitHub: "redirect_uri is not associated with this application" | Callback URL on the app (step 4a) doesn't match the site address exactly |
+| "Not allowed" | Signed in with a GitHub account other than dhwuho |
+| "Sign-in failed … expired" | Took over 10 minutes, or cookies blocked; try again |
+| Saving says 404 or "Resource not accessible" | App not installed on the repo (step 4c), or Contents isn't Read and write |
+| No "Live" status after saving | Checks / Commit statuses permission missing; saving still works |
+
 ## Custom domain (phase 7, launch)
 
 When you buy a domain (Cloudflare Registrar is simplest): Worker → **Settings** → **Domains & Routes** → **Add** → **Custom domain**. Then update the `SITE_URL` build variable, add the new callback URL to the GitHub App, and turn on automatic Web Analytics. Full checklist: phase 7 (M7.1–M7.6) in `progress.md`.
+
+The sign-in code needs no change for the domain: the Worker builds the callback URL from whatever address you're on, and cookies are host-only.

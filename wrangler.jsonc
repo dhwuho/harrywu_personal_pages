@@ -14,7 +14,7 @@
   // Public values. The secret GITHUB_CLIENT_SECRET is set in the Cloudflare dashboard
   // (Worker → Settings → Variables and secrets → Secret), never in this file.
   "vars": {
-    // GitHub App client ID (docs/cms-setup.md). Empty = sign-in disabled.
+    // GitHub App client ID (docs/setup-guide.md, step 4). Empty = sign-in disabled.
     "GITHUB_CLIENT_ID": "Iv23liB5KQiPAssQtfQT",
     // GitHub user ID allowed to sign in (dhwuho).
     "OWNER_ID": "5953718"

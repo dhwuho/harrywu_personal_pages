@@ -161,7 +161,7 @@ The site's interface is **English only**: one set of pages, no `/zh/` URLs, no l
 
 ## CMS design
 
-The CMS is a client-side React app at `/admin/` (`src/admin/`, loaded with `client:only`). It talks to the GitHub API directly; the only server code is the sign-in Worker (`worker/index.ts`). Setup steps: `docs/cms-setup.md`.
+The CMS is a client-side React app at `/admin/` (`src/admin/`, loaded with `client:only`). It talks to the GitHub API directly; the only server code is the sign-in Worker (`worker/index.ts`). Setup steps: `docs/setup-guide.md`.
 
 ### Sign-in (GitHub App)
 

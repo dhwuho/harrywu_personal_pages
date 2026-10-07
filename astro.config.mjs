@@ -4,7 +4,7 @@ import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 
-// Set by the SITE_URL build variable on Cloudflare (see docs/deploy.md).
+// Set by the SITE_URL build variable on Cloudflare (see docs/setup-guide.md).
 const site = process.env.SITE_URL ?? 'http://localhost:4321';
 
 export default defineConfig({

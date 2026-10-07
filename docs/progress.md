@@ -1,7 +1,7 @@
 # Progress Log
 
 Tracks milestones, what's done, and decisions made.
-Design: [design.md](design.md)
+Design: [design.md](design.md) · Setup and deployment: [setup-guide.md](setup-guide.md)
 
 ## Status by phase
 
@@ -139,7 +139,7 @@ So the domain never blocks other work:
 - Rewrote local commits to use the GitHub noreply email (`5953718+dhwuho@users.noreply.github.com`, set in repo git config). Name stays `HarryW`.
 - Pushed to https://github.com/dhwuho/harrywu_personal_pages (`main`).
 - Added `wrangler.jsonc` (Worker `harrywu-personal-pages`, static assets from `dist/`, 404 page), `.node-version` (24), `packageManager` pnpm 10.32.1, `pnpm deploy` script. `wrangler deploy --dry-run` passes.
-- Wrote `docs/deploy.md`: step-by-step Cloudflare setup.
+- Wrote `docs/deploy.md` (now `docs/setup-guide.md`): step-by-step Cloudflare setup.
 - **Site is live:** https://harrywu-personal-pages.dh-wuho.workers.dev. Workers Builds deploys every push to `main` (~1 min).
   - Cloudflare settings: production URL on, preview URLs off, Cloudflare Access off.
   - `SITE_URL` build variable set; canonical, RSS and sitemap use the live URL.
@@ -156,11 +156,12 @@ So the domain never blocks other work:
   - Browser walkthrough (headless Chromium) passed in read-only mode, on `astro dev` and through the Worker with CSP on.
   - CMS-written files (Chinese post with cover, `.mdx`→`.md` switch, tag rename) build on the site.
   - Not yet tested: real commits to GitHub (needs your GitHub App). Commit code uses the standard Git Data API.
-  - Added `docs/cms-setup.md`, `public/_headers` (CSP for `/admin/*`), `src/lib/lang.ts` (shared helpers).
-- GitHub App client ID set and deployed. Live check: `/api/auth/login` redirects to GitHub with the right callback; `/api/auth/session` answers "Not signed in" (so the secret is set). Waiting on the first real sign-in (`deploy.md` 4f).
+  - Added `docs/cms-setup.md` (now part of `docs/setup-guide.md`), `public/_headers` (CSP for `/admin/*`), `src/lib/lang.ts` (shared helpers).
+- GitHub App client ID set and deployed. Live check: `/api/auth/login` redirects to GitHub with the right callback; `/api/auth/session` answers "Not signed in" (so the secret is set). Waiting on the first real sign-in (`setup-guide.md` 4f).
 - **CMS works end to end.** First real sign-in and save from the live site: commit `ffffa04` "Publish: A draft post" (CMS commits use the noreply email). Phases 3–5 done.
 - **Fixed: delete/save failing with "Update is not a fast forward".** GitHub API responses carry `max-age=60`, so the browser served a cached branch head for up to a minute after any commit; the next commit was built on a stale parent. All CMS GitHub requests now use `cache: 'no-store'` (verified in a browser: the second read now reaches GitHub). File contents keep their own cache, keyed by blob SHA.
 - Merged phases 6 and 7 into **Phase 6: design polish, performance and search**. Comments moved to "When you want it", with a CMS/editor restyle. The domain phase is now **phase 7**.
 - **Phase 6 done.** CSS-only motion and typography pass; light code theme (`github-light`); click-to-play video placeholders (`srcdoc`, no page JS); Pagefind search at `/search/` (build runs `astro build && pagefind`; `pagefind.yml` forces one `zh`-segmented index so English pages find Chinese posts; no English stemming). Lighthouse mobile 100 in all categories on `/`, both posts and `/search/`. CMS preview re-tested with the new embeds under CSP.
 - Combined phases 6 and 7 into **Phase 6: Polish and launch**: polish (M6.1–M6.4, done) and launch (custom domain and Web Analytics, M6.5–M6.10, waiting on the domain).
 - Split again: **Phase 6: Polish** (done) and **Phase 7: Launch** (custom domain and Web Analytics, M7.1–M7.6).
+- Merged `docs/deploy.md` and `docs/cms-setup.md` into **`docs/setup-guide.md`** (deployment, CMS sign-in, local development, troubleshooting, custom domain).
